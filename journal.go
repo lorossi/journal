@@ -27,6 +27,7 @@ type Journal struct {
   Path string
 }
 
+// package the variables into a new entru
 func create_new_entry(title, content string, time_obj time.Time) Entry {
   var timestamp string
   // format the timestamp
@@ -41,10 +42,12 @@ func create_new_entry(title, content string, time_obj time.Time) Entry {
   return entry
 }
 
-func (j * Journal) add_new_entry(new_entry Entry) {
+// append the entry to the entries array
+func (j * Journal) addNewEntry(new_entry Entry) {
   j.Entries = append(j.Entries, new_entry)
 }
 
+// load entry from database
 func (j * Journal) load() {
   // try to open the file
   file, e := ioutil.ReadFile(j.Path)
@@ -61,6 +64,7 @@ func (j * Journal) load() {
   }
 }
 
+// save journal to database
 func (j * Journal) save() {
   // Unmarshal data
   JSON_bytes, _ := json.MarshalIndent(j.Entries, "", "  ")
@@ -68,7 +72,8 @@ func (j * Journal) save() {
   _ = ioutil.WriteFile(j.Path, JSON_bytes, 0666);
 }
 
-func (j * Journal) addEntry(entry string) {
+// create a new entry
+func (j * Journal) createEntry(entry string) {
   // array of separators that end the title
   var delimiters = []string{".", ",", "?", "!"}
   var current_delimiter string
@@ -96,7 +101,7 @@ func (j * Journal) addEntry(entry string) {
   time_obj = time.Now()
   // finally, generate and add the new entry
   new_entry = create_new_entry(title, content, time_obj)
-  j.add_new_entry(new_entry)
+  j.addNewEntry(new_entry)
 }
 
 func (j * Journal) showDay(Timestamp string) {

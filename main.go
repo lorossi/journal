@@ -26,8 +26,8 @@ func main() {
     entry = strings.Join(os.Args[1:], " ")
   }
 
-  // add entry to Journal
-  j.addEntry(entry)
+  // create entry in Journal
+  j.createEntry(entry)
   // save journal
   j.save()
 }
