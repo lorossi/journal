@@ -1,5 +1,5 @@
 # Journal
-~A simple CLI journal made in Go~
+*A simple CLI journal made in Go*
 
 ## Goals
 I want to implement a simple CLI (command line interface) journal in Go, as a way to excercise and learn it.
