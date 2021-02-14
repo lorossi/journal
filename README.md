@@ -42,11 +42,18 @@ Add entry for arbitrary date:
 `journal 2020-02-15 Dear diary, today I read about a strange flu in China. I'm sure it's going to be nothing!`
 
 ### Tags
-Write tags by simply adding a `+` sign before the tag. Example:
+Write *tags* by simply adding a `+` sign before the tag. Example:
 
 `journal Such an exciting day! I went to Disneyland. +fun +happiness`
 
 will store `tag` and `happiness` as tags for today's entry. Of course tags can be used in combination of the previous settings.
+
+### Fields
+*Fields* are pairs of key/value. Write them by adding a `@` before the key and `=` before the value. Example:
+
+`journal Today i ran so much! @run=10km @minutes=30`
+
+will store `run: 10km` in todays entry. Of course fields can be used in combination of the previous settings.
 
 ## View entry (or multiple entries)
 View an entry for an arbitrary date:
@@ -91,6 +98,17 @@ Search tag "fun":
 Search tags "airplane" and "ferry":
 
 `journal --searchtags lake sushi`
+
+## Search entries by field
+The field will be matched against the ones stored in each entry. If an entry matches ANY of the fields keys, it will be shown.
+
+Search field with key `pushups`
+
+`journal --searchfields pushups`
+
+Search fields with key `burpess` and `slices_of_cake`:
+
+`journal --searchfields burpees slices_of_cake`
 
 ## Load all entries from one month
 `journal --loadmonth 2020-02`

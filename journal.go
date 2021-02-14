@@ -8,17 +8,12 @@ import (
 	"time"
 )
 
-type Fields struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
-}
-
 type Entry struct {
-	Title     string   `json:"title"`
-	Content   string   `json:"content"`
-	Timestamp string   `json:"timestamp"`
-	Tags      []string `json:"tags"`
-	Fields    []Fields `json:"fields"`
+	Title     string            `json:"title"`
+	Content   string            `json:"content"`
+	Timestamp string            `json:"timestamp"`
+	Tags      []string          `json:"tags"`
+	Fields    map[string]string `json:"fields"`
 	time_obj  time.Time
 }
 
@@ -43,7 +38,7 @@ func crate_journal() Journal {
 }
 
 // package the variables into a new entru
-func (j *Journal) createNewEntry(title, content string, tags []string, time_obj time.Time) Entry {
+func (j *Journal) createNewEntry(title, content string, tags []string, fields map[string]string, time_obj time.Time) Entry {
 	var timestamp string
 	// format the timestamp
 	timestamp = time_obj.Format(j.time_format)
@@ -52,6 +47,7 @@ func (j *Journal) createNewEntry(title, content string, tags []string, time_obj 
 		Title:     title,
 		Content:   content,
 		Tags:      tags,
+		Fields:    fields,
 		Timestamp: timestamp,
 		time_obj:  time_obj,
 	}
@@ -92,12 +88,15 @@ func (j *Journal) save() {
 // create a new entry
 func (j *Journal) createEntry(entry string) {
 	// array of separators that end the title
-	var delimiters = []string{".", ",", "?", "!"}
+	var delimiters = []string{".", ",", "?", "!", "+", "@"}
 	var current_delimiter string
 	// title, content variables
 	var title, content string
-	// entry split by words, tags variables
+	// entry tags variable
 	var tags []string
+	// fields variable
+	var fields map[string]string
+	fields = make(map[string]string)
 	// current datetime variable
 	var new_date time.Time
 	// new entry variable
@@ -125,8 +124,31 @@ func (j *Journal) createEntry(entry string) {
 		tags = strings.Split(content, "+")[1:]
 
 		// now remove all tags from content
-		for _, tag := range tags {
-			content = strings.ReplaceAll(content, "+"+tag, "")
+		for i := 0; i < len(tags); i++ {
+			tags[i] = strings.TrimSpace(tags[i])
+			content = strings.ReplaceAll(content, "+"+tags[i], "")
+		}
+	}
+
+	// now load the fields
+	if strings.Contains(content, "@") {
+		// we found one or more fields
+		string_fields := strings.Split(content, "@")[1:]
+
+		for i := 0; i < len(string_fields); i++ {
+			values := strings.Split(string_fields[i], "=")
+			// if there arent' exactly 2 strings (key, value) separated by semicolon,
+			// something is wrong
+			if len(values) != 2 {
+				print_error(errors.New("field '" + values[0] + "' provided in a wrong format"))
+			} else {
+				fields[values[0]] = strings.TrimSpace(values[1])
+			}
+
+			// now remove all fields from content
+			for i := 0; i < len(string_fields); i++ {
+				content = strings.ReplaceAll(content, "@"+string_fields[i], "")
+			}
 		}
 	}
 
@@ -134,7 +156,7 @@ func (j *Journal) createEntry(entry string) {
 	content = strings.TrimSpace(content)
 
 	// finally, generate the new entry
-	new_entry = j.createNewEntry(title, content, tags, new_date)
+	new_entry = j.createNewEntry(title, content, tags, fields, new_date)
 	// append the entry to the entries array
 	j.Entries = append(j.Entries, new_entry)
 }
@@ -224,6 +246,23 @@ func (j *Journal) searchTags(tags []string) ([]Entry, error) {
 		return entries, nil
 	} else {
 		return entries, errors.New("no entries found with the tag")
+	}
+}
+
+func (j *Journal) searchFields(keys []string) ([]Entry, error) {
+	var entries []Entry
+	for _, e := range j.Entries {
+		for _, k := range keys {
+			if _, ok := e.Fields[k]; ok {
+				entries = append(entries, e)
+			}
+		}
+	}
+
+	if len(entries) > 0 {
+		return entries, nil
+	} else {
+		return entries, errors.New("no entries found with the field")
 	}
 }
 

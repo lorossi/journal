@@ -2,10 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"strings"
-
-	"github.com/fatih/color"
 )
 
 func main() {
@@ -15,6 +12,7 @@ func main() {
 	view := flag.String("view", "", "view an entry or all entries from the diary. Use all to see all. Date format: YYYY-MM-DD")
 	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
+	searchfields := flag.String("searchfields", "", "search entries by fields")
 	loadmonth := flag.String("loadmonth", "", "load all entries from one month. Date format YYYY-MM")
 	loadyear := flag.String("loadyear", "", "load all entries from one year. Date format YYYY")
 	flag.Parse()
@@ -44,16 +42,13 @@ func main() {
 	} else if *remove != "" {
 		e := j.removeEntry(*remove)
 		if e != nil {
-			color.Set(color.FgYellow)
-			fmt.Println("Entry not found")
+			print_error(e)
 		}
 	} else if *view != "" {
 		if strings.ToLower(*view) == "all" {
 			entries, e := j.getAllEntries()
-
 			if e != nil {
-				color.Set(color.FgYellow)
-				fmt.Println("No entries where found")
+				print_error(e)
 			} else {
 				for _, entry := range entries {
 					print_entry(entry)
@@ -62,8 +57,7 @@ func main() {
 		} else {
 			entry, e := j.getEntry(*view)
 			if e != nil {
-				color.Set(color.FgYellow)
-				fmt.Println("Entry not found for that date.")
+				print_error(e)
 			} else {
 				print_entry(entry)
 			}
@@ -75,8 +69,7 @@ func main() {
 		keywords = append(keywords, flag.Args()...)
 		entries, e := j.searchKeywords(keywords)
 		if e != nil {
-			color.Set(color.FgYellow)
-			fmt.Println("Entry not found for that keyword.")
+			print_error(e)
 		} else {
 			for _, entry := range entries {
 				print_entry(entry)
@@ -89,8 +82,20 @@ func main() {
 		tags = append(tags, flag.Args()...)
 		entries, e := j.searchTags(tags)
 		if e != nil {
-			color.Set(color.FgYellow)
-			fmt.Println("Entry not found for that tag.")
+			print_error(e)
+		} else {
+			for _, entry := range entries {
+				print_entry(entry)
+			}
+		}
+	} else if *searchfields != "" {
+		var keys []string
+		// concantenate all the fields keys
+		keys = append(keys, *searchfields)
+		keys = append(keys, flag.Args()...)
+		entries, e := j.searchFields(keys)
+		if e != nil {
+			print_error(e)
 		} else {
 			for _, entry := range entries {
 				print_entry(entry)
@@ -99,8 +104,7 @@ func main() {
 	} else if *loadmonth != "" {
 		entries, e := j.getMonth(*loadmonth)
 		if e != nil {
-			color.Set(color.FgYellow)
-			fmt.Println("Entry not found for that month.")
+			print_error(e)
 		} else {
 			for _, entry := range entries {
 				print_entry(entry)
@@ -109,8 +113,7 @@ func main() {
 	} else if *loadyear != "" {
 		entries, e := j.getYear(*loadyear)
 		if e != nil {
-			color.Set(color.FgYellow)
-			fmt.Println("Entry not found for that year.")
+			print_error(e)
 		} else {
 			for _, entry := range entries {
 				print_entry(entry)

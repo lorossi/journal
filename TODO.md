@@ -2,7 +2,7 @@
 
 1. ~Entries filter~ **DONE**
 2. ~Tags `+tag`~ **DONE**
-3. Fields
+3. ~Fields~ **DONE**
 4. ~Entries with different time than now~ **DONE**
 5. Append to entry instead of creating new one
 6. Edit old entries

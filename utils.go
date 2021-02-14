@@ -101,5 +101,19 @@ func print_entry(entry Entry) {
 		fmt.Print("+" + strings.Join(entry.Tags, " +"))
 	}
 	fmt.Println()
+
+	color.Set(color.FgMagenta)
+	fmt.Print("Fields: ")
+	color.Unset()
+	for k, v := range entry.Fields {
+		fmt.Print(k, "=", v, " ")
+	}
+
 	fmt.Println()
+	fmt.Println()
+}
+
+func print_error(e error) {
+	color.Set(color.FgYellow)
+	fmt.Println(e)
 }
