@@ -29,7 +29,7 @@ type Journal struct {
 func crate_journal() (j Journal) {
 	j = Journal{
 		path:        "database.json",
-		time_format: "2006-01-02",
+		time_format: "2006-01-02 15:04:05",
 		Last_loaded: time.Now().Format(time.RFC3339),
 		Version:     "0.0.1",
 	}
@@ -37,7 +37,7 @@ func crate_journal() (j Journal) {
 	return j
 }
 
-// package the variables into a new entru
+// package the variables into a new entry
 func (j *Journal) createNewEntry(title, content string, tags []string, fields map[string]string, time_obj time.Time) (entry Entry) {
 	var timestamp string
 	// format the timestamp
@@ -56,33 +56,43 @@ func (j *Journal) createNewEntry(title, content string, tags []string, fields ma
 }
 
 // load entry from database
-func (j *Journal) load() {
+func (j *Journal) load() (e error) {
+	var file []byte
 	// try to open the file
-	file, e := ioutil.ReadFile(j.path)
+	file, e = ioutil.ReadFile(j.path)
 
 	// if not available, create an empty one
 	if e != nil {
 		j.Created = time.Now().Format(time.RFC3339)
 		ioutil.WriteFile(j.path, []byte("[]"), 0666)
-		return
+		return nil
 	}
-
+	// parse JSON
 	e = json.Unmarshal([]byte(file), &j)
 	if e != nil {
-		return
+		return errors.New("cannot parse database")
 	}
-
+	// calculate the time for each entry
 	for i := 0; i < len(j.Entries); i++ {
 		j.Entries[i].time_obj, _ = time.Parse(j.time_format, j.Entries[i].Timestamp)
 	}
+
+	return nil
 }
 
 // save journal to database
-func (j *Journal) save() {
+func (j *Journal) save() (e error) {
 	// Unmarshal data
-	JSON_bytes, _ := json.MarshalIndent(j, "", "  ")
+	JSON_bytes, e := json.MarshalIndent(j, "", "  ")
+	if e != nil {
+		return errors.New("error while encoding data. cannot save")
+	}
 	// write to file
-	_ = ioutil.WriteFile(j.path, JSON_bytes, 0666)
+	e = ioutil.WriteFile(j.path, JSON_bytes, 0666)
+	if e != nil {
+		return errors.New("error while working with the file. cannot save")
+	}
+	return e
 }
 
 // create a new entry
@@ -121,7 +131,11 @@ func (j *Journal) createEntry(entry string) {
 	// now load the tags
 	if strings.Contains(content, "+") {
 		// we found one or more tags
-		tags = strings.Split(content, "+")[1:]
+		string_tags := strings.Split(content, "+")[1:]
+
+		for _, s := range string_tags {
+			tags = append(tags, strings.Split(s, " ")[0])
+		}
 
 		// now remove all tags from content
 		for i := 0; i < len(tags); i++ {
@@ -151,20 +165,13 @@ func (j *Journal) createEntry(entry string) {
 			}
 		}
 	}
-
 	// remove leading / trailing spaces for a better Format
 	content = strings.TrimSpace(content)
+	// remove all multiple spaces
+	content = remove_multiple_spaces(content)
 
 	// finally, generate the new entry
 	new_entry = j.createNewEntry(title, content, tags, fields, new_date)
-	// parse the timestamp and check if an entry for this day already exists
-	timestamp := time.Now().Format("2006-01-02")
-	for _, e := range j.Entries {
-		if e.Timestamp == timestamp {
-			print_error(errors.New("entry already found for this day. Aborting"), 1)
-			return
-		}
-	}
 	// append the entry to the entries array
 	j.Entries = append(j.Entries, new_entry)
 }

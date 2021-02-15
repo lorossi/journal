@@ -20,6 +20,13 @@ func find_delimiter(entry string, delimiters []string) string {
 	return ""
 }
 
+func remove_multiple_spaces(entry string) string {
+	for strings.Contains(entry, "  ") {
+		entry = strings.ReplaceAll(entry, "  ", " ")
+	}
+	return entry
+}
+
 func parse_day_entry(entry, time_format string) (string, time.Time) {
 	switch words := strings.Split(entry, " "); strings.ToLower(words[0]) {
 	case "yesterday:":
@@ -89,54 +96,78 @@ func same_year(date_1, date_2 time.Time) bool {
 	return date_1.Year() == date_2.Year()
 }
 
-func print_entry(entry Entry) {
-	fmt.Println()
-	color.Set(color.FgGreen)
-	fmt.Print("Date: ")
-	color.Unset() // Don't forget to unset
-	fmt.Println(entry.Timestamp)
+func print_entry(entry Entry, plaintext bool) {
+	if plaintext {
+		// print date
+		fmt.Print("[", entry.Timestamp, "] ")
+		// print title
+		fmt.Print(entry.Title, " ")
+		// print content
+		fmt.Print(entry.Content, " ")
+		// print tags
+		if len(entry.Tags) > 0 {
+			fmt.Print("+" + strings.Join(entry.Tags, " +"))
+		}
+		// print fields
+		for k, v := range entry.Fields {
+			fmt.Print(k, "=", v, " ")
+		}
+		// end line
+		fmt.Println()
+	} else {
+		// print timestamp
+		fmt.Println()
+		color.Set(color.FgHiGreen)
+		fmt.Print("Date: ")
+		color.Unset()
+		fmt.Println(entry.Timestamp)
 
-	color.Set(color.FgGreen)
-	fmt.Print("Title: ")
-	color.Unset()
-	fmt.Println(entry.Title)
+		// print title
+		color.Set(color.FgHiGreen)
+		fmt.Print("Title: ")
+		color.Unset()
+		fmt.Println(entry.Title)
 
-	color.Set(color.FgGreen)
-	fmt.Print("Content: ")
-	color.Unset()
-	fmt.Println(entry.Content)
+		// print content
+		color.Set(color.FgHiGreen)
+		fmt.Print("Content: ")
+		color.Unset()
+		fmt.Println(entry.Content)
 
-	color.Set(color.FgMagenta)
-	fmt.Print("Tags: ")
-	color.Unset()
-	if len(entry.Tags) > 0 {
-		fmt.Print("+" + strings.Join(entry.Tags, " +"))
+		// print tags
+		color.Set(color.FgHiMagenta)
+		fmt.Print("Tags: ")
+		color.Unset()
+		if len(entry.Tags) > 0 {
+			fmt.Print("+" + strings.Join(entry.Tags, " +"))
+		}
+		fmt.Println()
+
+		// print fields
+		color.Set(color.FgHiMagenta)
+		fmt.Print("Fields: ")
+		color.Unset()
+		for k, v := range entry.Fields {
+			fmt.Print(k, "=", v, " ")
+		}
+
+		// add some spacing
+		fmt.Println()
+		fmt.Println()
 	}
-	fmt.Println()
-
-	color.Set(color.FgMagenta)
-	fmt.Print("Fields: ")
-	color.Unset()
-	for k, v := range entry.Fields {
-		fmt.Print(k, "=", v, " ")
-	}
-
-	fmt.Println()
-	fmt.Println()
 }
 
 func print_error(e error, level int8) {
 	switch level {
 	case 0:
-		color.Set(color.FgGreen)
+		color.Set(color.FgHiGreen)
 	case 1:
-		color.Set(color.FgYellow)
+		color.Set(color.FgHiYellow)
 	case 2:
 		color.Set(color.FgHiRed)
 	case 3:
 		color.Set(color.BgHiRed)
 		color.Set(color.FgHiWhite)
 	}
-	color.Set(color.FgYellow)
 	fmt.Println(e)
 }

@@ -13,6 +13,7 @@ func main() {
 	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
+	plaintext := flag.Bool("plaintext", false, "show as plaintext")
 	flag.Parse()
 
 	// no commands were provided and no text was written
@@ -25,7 +26,12 @@ func main() {
 	// vreate empty Journal
 	j := crate_journal()
 	// load from database
-	j.load()
+	e := j.load()
+
+	if e != nil {
+		print_error(e, 3)
+		return
+	}
 
 	// no commands were provided but some text was recognized
 	if flag.NFlag() == 0 && flag.NArg() > 0 {
@@ -51,7 +57,7 @@ func main() {
 				print_error(e, 1)
 			} else {
 				for _, entry := range entries {
-					print_entry(entry)
+					print_entry(entry, *plaintext)
 				}
 			}
 		} else {
@@ -60,7 +66,7 @@ func main() {
 			if e != nil {
 				print_error(e, 1)
 			} else {
-				print_entry(entry)
+				print_entry(entry, *plaintext)
 			}
 		}
 	} else if *searchkeywords != "" {
@@ -73,7 +79,7 @@ func main() {
 			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
-				print_entry(entry)
+				print_entry(entry, *plaintext)
 			}
 		}
 	} else if *searchtags != "" {
@@ -86,7 +92,7 @@ func main() {
 			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
-				print_entry(entry)
+				print_entry(entry, *plaintext)
 			}
 		}
 	} else if *searchfields != "" {
@@ -99,10 +105,14 @@ func main() {
 			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
-				print_entry(entry)
+				print_entry(entry, *plaintext)
 			}
 		}
 	}
 
-	j.save()
+	e = j.save()
+
+	if e != nil {
+		print_error(e, 1)
+	}
 }
