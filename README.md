@@ -60,6 +60,10 @@ View an entry for an arbitrary date:
 
 `journal --view 2020-02-15`
 
+View all entries from one month or from one year:
+
+`journal --view 2020-01` `journal --view 2020`
+
 View all entries:
 
 `journal --view all`
@@ -76,6 +80,10 @@ Remove entry for yesterday:
 Remove entry for arbitrary date:
 
 `journal --remove 2020-02-15`
+
+Remove all entries from one month or from one year:
+
+`journal --remove 2020-01` `journal --remove 2020`
 
 ## Search entries by keyword
 The keywords will be matched against words in the title and the content of each entry. If an entry matches ANY of the keywords, it will be shown.
@@ -109,12 +117,6 @@ Search field with key `pushups`
 Search fields with key `burpess` and `slices_of_cake`:
 
 `journal --searchfields burpees slices_of_cake`
-
-## Load all entries from one month
-`journal --loadmonth 2020-02`
-
-## Load all entries from one year
-`journal --loadyear 2020`
 
 # Credits
 Thanks to [faith](github.com/fatih) for his [color](github.com/fatih/color) package

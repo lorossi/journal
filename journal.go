@@ -26,8 +26,8 @@ type Journal struct {
 	time_format string
 }
 
-func crate_journal() Journal {
-	j := Journal{
+func crate_journal() (j Journal) {
+	j = Journal{
 		path:        "database.json",
 		time_format: "2006-01-02",
 		Last_loaded: time.Now().Format(time.RFC3339),
@@ -38,12 +38,12 @@ func crate_journal() Journal {
 }
 
 // package the variables into a new entru
-func (j *Journal) createNewEntry(title, content string, tags []string, fields map[string]string, time_obj time.Time) Entry {
+func (j *Journal) createNewEntry(title, content string, tags []string, fields map[string]string, time_obj time.Time) (entry Entry) {
 	var timestamp string
 	// format the timestamp
 	timestamp = time_obj.Format(j.time_format)
 	// create the new entry
-	entry := Entry{
+	entry = Entry{
 		Title:     title,
 		Content:   content,
 		Tags:      tags,
@@ -140,7 +140,7 @@ func (j *Journal) createEntry(entry string) {
 			// if there arent' exactly 2 strings (key, value) separated by semicolon,
 			// something is wrong
 			if len(values) != 2 {
-				print_error(errors.New("field '" + values[0] + "' provided in a wrong format"))
+				print_error(errors.New("field '"+values[0]+"' provided in a wrong format"), 1)
 			} else {
 				fields[values[0]] = strings.TrimSpace(values[1])
 			}
@@ -157,23 +157,47 @@ func (j *Journal) createEntry(entry string) {
 
 	// finally, generate the new entry
 	new_entry = j.createNewEntry(title, content, tags, fields, new_date)
+	// parse the timestamp and check if an entry for this day already exists
+	timestamp := time.Now().Format("2006-01-02")
+	for _, e := range j.Entries {
+		if e.Timestamp == timestamp {
+			print_error(errors.New("entry already found for this day. Aborting"), 1)
+			return
+		}
+	}
 	// append the entry to the entries array
 	j.Entries = append(j.Entries, new_entry)
 }
 
-func (j *Journal) removeEntry(timestamp string) error {
+func (j *Journal) removeEntry(timestamp string) (e error) {
 	var remove_date time.Time
+	var level int8
 	var clean_entries []Entry
 
 	// get the date from the string
-	remove_date = parse_day(timestamp, j.time_format)
+	remove_date, level = parse_day(timestamp)
+	if level == -1 {
+		return errors.New("date was not provided correctly")
+	}
 	// init an empty slice of entries
 	clean_entries = clean_entries[:0]
 	for _, e := range j.Entries {
 		// if the entry has the same date as the timestamp, don't append it
 		// to the new slice of entries
-		if !same_date(e.time_obj, remove_date) {
-			clean_entries = append(clean_entries, e)
+
+		switch level {
+		case 0:
+			if !same_day(e.time_obj, remove_date) {
+				clean_entries = append(clean_entries, e)
+			}
+		case 1:
+			if !same_month(e.time_obj, remove_date) {
+				clean_entries = append(clean_entries, e)
+			}
+		case 2:
+			if !same_year(e.time_obj, remove_date) {
+				clean_entries = append(clean_entries, e)
+			}
 		}
 	}
 
@@ -187,14 +211,27 @@ func (j *Journal) removeEntry(timestamp string) error {
 	}
 }
 
-func (j *Journal) getEntry(timestamp string) (Entry, error) {
+func (j *Journal) viewEntry(timestamp string) (entry Entry, e error) {
 	var get_date time.Time
-	get_date = parse_day(timestamp, j.time_format)
+	var level int8
+
+	get_date, level = parse_day(timestamp)
 
 	// loop throught every entry and look for one with the desired day
 	for _, e := range j.Entries {
-		if same_date(e.time_obj, get_date) {
-			return e, nil
+		switch level {
+		case 0:
+			if same_day(e.time_obj, get_date) {
+				return e, nil
+			}
+		case 1:
+			if same_month(e.time_obj, get_date) {
+				return e, nil
+			}
+		case 2:
+			if same_year(e.time_obj, get_date) {
+				return e, nil
+			}
 		}
 	}
 
@@ -207,8 +244,8 @@ func (j *Journal) getAllEntries() ([]Entry, error) {
 	if len(j.Entries) > 0 {
 		return j.Entries, nil
 	} else {
-		// if there are no entries, return the empty slice and set an erro
-		return j.Entries, errors.New("no entries found")
+		// if there are no entries, return the empty slice and set an error
+		return make([]Entry, 0), errors.New("no entries found")
 	}
 }
 
@@ -225,7 +262,7 @@ func (j *Journal) searchKeywords(keywords []string) ([]Entry, error) {
 	if len(entries) > 0 {
 		return entries, nil
 	} else {
-		return entries, errors.New("no entries found with the keyword")
+		return make([]Entry, 0), errors.New("no entries found with the keyword")
 	}
 }
 
@@ -245,12 +282,11 @@ func (j *Journal) searchTags(tags []string) ([]Entry, error) {
 	if len(entries) > 0 {
 		return entries, nil
 	} else {
-		return entries, errors.New("no entries found with the tag")
+		return make([]Entry, 0), errors.New("no entries found with the tag")
 	}
 }
 
-func (j *Journal) searchFields(keys []string) ([]Entry, error) {
-	var entries []Entry
+func (j *Journal) searchFields(keys []string) (entries []Entry, e error) {
 	for _, e := range j.Entries {
 		for _, k := range keys {
 			if _, ok := e.Fields[k]; ok {
@@ -262,52 +298,6 @@ func (j *Journal) searchFields(keys []string) ([]Entry, error) {
 	if len(entries) > 0 {
 		return entries, nil
 	} else {
-		return entries, errors.New("no entries found with the field")
-	}
-}
-
-func (j *Journal) getMonth(month string) ([]Entry, error) {
-	var entries []Entry
-	var time_obj time.Time
-	var e error
-
-	time_obj, e = time.Parse("2006-01", month)
-	if e != nil {
-		return j.Entries, errors.New("date was not provided correctly")
-	}
-
-	for _, e := range j.Entries {
-		if same_month(e.time_obj, time_obj) {
-			entries = append(entries, e)
-		}
-	}
-
-	if len(entries) > 0 {
-		return entries, nil
-	} else {
-		return entries, errors.New("no entries found within this month")
-	}
-}
-
-func (j *Journal) getYear(year string) ([]Entry, error) {
-	var entries []Entry
-	var time_obj time.Time
-	var e error
-
-	time_obj, e = time.Parse("2006", year)
-	if e != nil {
-		return j.Entries, errors.New("date was not provided correctly")
-	}
-
-	for _, e := range j.Entries {
-		if same_year(e.time_obj, time_obj) {
-			entries = append(entries, e)
-		}
-	}
-
-	if len(entries) > 0 {
-		return entries, nil
-	} else {
-		return entries, errors.New("no entries found within this year")
+		return make([]Entry, 0), errors.New("no entries found with the field")
 	}
 }

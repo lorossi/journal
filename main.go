@@ -7,14 +7,12 @@ import (
 
 func main() {
 	// add flags
-	add := flag.String("add", "", "add an entry to the diary")
-	remove := flag.String("remove", "", "remove an entry from the diary")
-	view := flag.String("view", "", "view an entry or all entries from the diary. Use all to see all. Date format: YYYY-MM-DD")
+	add := flag.String("add", "", "add an entry to the diary. Date format: today:, yesterday:, YYYY-MM-DD")
+	remove := flag.String("remove", "", "remove an entry from the diary. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
+	view := flag.String("view", "", "view an entry or all entries from the diary. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
 	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
-	loadmonth := flag.String("loadmonth", "", "load all entries from one month. Date format YYYY-MM")
-	loadyear := flag.String("loadyear", "", "load all entries from one year. Date format YYYY")
 	flag.Parse()
 
 	// no commands were provided and no text was written
@@ -42,22 +40,25 @@ func main() {
 	} else if *remove != "" {
 		e := j.removeEntry(*remove)
 		if e != nil {
-			print_error(e)
+			print_error(e, 2)
 		}
 	} else if *view != "" {
+		// get entry by date
+		// check if parameter is "all"
 		if strings.ToLower(*view) == "all" {
 			entries, e := j.getAllEntries()
 			if e != nil {
-				print_error(e)
+				print_error(e, 1)
 			} else {
 				for _, entry := range entries {
 					print_entry(entry)
 				}
 			}
 		} else {
-			entry, e := j.getEntry(*view)
+			// check if the parameter is some kind of date
+			entry, e := j.viewEntry(*view)
 			if e != nil {
-				print_error(e)
+				print_error(e, 1)
 			} else {
 				print_entry(entry)
 			}
@@ -69,7 +70,7 @@ func main() {
 		keywords = append(keywords, flag.Args()...)
 		entries, e := j.searchKeywords(keywords)
 		if e != nil {
-			print_error(e)
+			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
 				print_entry(entry)
@@ -82,7 +83,7 @@ func main() {
 		tags = append(tags, flag.Args()...)
 		entries, e := j.searchTags(tags)
 		if e != nil {
-			print_error(e)
+			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
 				print_entry(entry)
@@ -95,25 +96,7 @@ func main() {
 		keys = append(keys, flag.Args()...)
 		entries, e := j.searchFields(keys)
 		if e != nil {
-			print_error(e)
-		} else {
-			for _, entry := range entries {
-				print_entry(entry)
-			}
-		}
-	} else if *loadmonth != "" {
-		entries, e := j.getMonth(*loadmonth)
-		if e != nil {
-			print_error(e)
-		} else {
-			for _, entry := range entries {
-				print_entry(entry)
-			}
-		}
-	} else if *loadyear != "" {
-		entries, e := j.getYear(*loadyear)
-		if e != nil {
-			print_error(e)
+			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
 				print_entry(entry)

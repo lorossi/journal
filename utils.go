@@ -42,30 +42,42 @@ func parse_day_entry(entry, time_format string) (string, time.Time) {
 	}
 }
 
-func parse_day(entry, time_format string) time.Time {
+func parse_day(entry string) (time_obj time.Time, level int8) {
 	switch first_word := strings.Split(entry, " ")[0]; strings.ToLower(first_word) {
 	case "yesterday":
 		// the first word was yesterday. Return today's date MINUS one day
-		return time.Now().AddDate(0, 0, -1)
+		return time.Now().AddDate(0, 0, -1), 0
 	case "today":
 		// the first word was today. Return today's date
-		return time.Now()
+		return time.Now(), 0
 	default:
 		// the first word wasn't either yesterday or today.
 		// try to parse the date. If it work, remove the first word.
 		// If it doesn't work, the date is today (the first word
 		// does not indicate the date)
-		time_obj, e := time.Parse(time_format, first_word)
+		// this is the digital version of a powerdrill. Gotta find a better way
+		time_obj, e := time.Parse("2006-01-02", first_word)
 		if e == nil {
-			return time_obj
+			return time_obj, 0
 		} else {
 			// returns zero (epoch time)
-			return time.Time{}
+			time_obj, e := time.Parse("2006-01", first_word)
+			if e == nil {
+				return time_obj, 1
+			} else {
+				time_obj, e := time.Parse("2006", first_word)
+				if e == nil {
+					return time_obj, 2
+				} else {
+					return time.Time{}, -1
+				}
+			}
+
 		}
 	}
 }
 
-func same_date(date_1, date_2 time.Time) bool {
+func same_day(date_1, date_2 time.Time) bool {
 	return date_1.Format("20060102") == date_2.Format("20060102")
 }
 
@@ -113,7 +125,18 @@ func print_entry(entry Entry) {
 	fmt.Println()
 }
 
-func print_error(e error) {
+func print_error(e error, level int8) {
+	switch level {
+	case 0:
+		color.Set(color.FgGreen)
+	case 1:
+		color.Set(color.FgYellow)
+	case 2:
+		color.Set(color.FgHiRed)
+	case 3:
+		color.Set(color.BgHiRed)
+		color.Set(color.FgHiWhite)
+	}
 	color.Set(color.FgYellow)
 	fmt.Println(e)
 }
