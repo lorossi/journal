@@ -96,6 +96,10 @@ func same_year(date_1, date_2 time.Time) bool {
 	return date_1.Year() == date_2.Year()
 }
 
+func date_between(current, start, end time.Time) bool {
+	return current.After(start) && current.Before(end)
+}
+
 func print_entry(entry Entry, plaintext bool) {
 	if plaintext {
 		// print date
@@ -108,10 +112,12 @@ func print_entry(entry Entry, plaintext bool) {
 		if len(entry.Tags) > 0 {
 			fmt.Print("+" + strings.Join(entry.Tags, " +"))
 		}
+		fmt.Print(" ")
 		// print fields
 		for k, v := range entry.Fields {
 			fmt.Print(k, "=", v, " ")
 		}
+		fmt.Print(" ")
 		// end line
 		fmt.Println()
 	} else {
@@ -154,6 +160,34 @@ func print_entry(entry Entry, plaintext bool) {
 		// add some spacing
 		fmt.Println()
 		fmt.Println()
+	}
+}
+
+func print_tags(tags map[string]int) {
+	for k, v := range tags {
+		// print key
+		color.Set(color.FgHiMagenta)
+		fmt.Print(k, " ")
+		// print value
+		color.Unset()
+		fmt.Print(v)
+		// end line
+		fmt.Println()
+	}
+}
+
+func print_fields(fields []map[string]string) {
+	for _, f := range fields {
+		for k, v := range f {
+			// print key
+			color.Set(color.FgHiMagenta)
+			fmt.Print(k, " ")
+			// print value
+			color.Unset()
+			fmt.Print(v)
+			// end line
+			fmt.Println()
+		}
 	}
 }
 

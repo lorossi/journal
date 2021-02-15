@@ -14,6 +14,11 @@ func main() {
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
 	plaintext := flag.Bool("plaintext", false, "show as plaintext")
+	hour := flag.String("time", "", "set a time. Only valied if passed with \"add\" flag. Format: hh.mm (24 hour format)")
+	tags := flag.Bool("tags", false, "show all tags")
+	fields := flag.Bool("fields", false, "show all fields")
+	from := flag.String("from", "", "starting date. Only valied if passed with \"add\" flag. Format: YYYY-MM-DD")
+	to := flag.String("to", "", "ending date. Only valied if passed with \"add\" flag. Format: YYYY-MM-DD")
 	flag.Parse()
 
 	// no commands were provided and no text was written
@@ -36,13 +41,13 @@ func main() {
 	// no commands were provided but some text was recognized
 	if flag.NFlag() == 0 && flag.NArg() > 0 {
 		entry := strings.Join(flag.Args(), " ")
-		j.createEntry(entry)
+		j.createEntry(entry, "")
 	} else if *add != "" {
 		// get text provided by the flag
 		// get remainder text
 		// concantenate them
 		entry := string(*add) + " " + strings.Join(flag.Args(), " ")
-		j.createEntry(entry)
+		j.createEntry(entry, *hour)
 	} else if *remove != "" {
 		e := j.removeEntry(*remove)
 		if e != nil {
@@ -50,8 +55,8 @@ func main() {
 		}
 	} else if *view != "" {
 		// get entry by date
-		// check if parameter is "all"
 		if strings.ToLower(*view) == "all" {
+			// check if parameter is "all"
 			entries, e := j.getAllEntries()
 			if e != nil {
 				print_error(e, 1)
@@ -108,11 +113,37 @@ func main() {
 				print_entry(entry, *plaintext)
 			}
 		}
+	} else if *tags {
+		var tags map[string]int
+		tags, e = j.getAllTags()
+		if e != nil {
+			print_error(e, 1)
+		} else {
+			print_tags(tags)
+		}
+	} else if *fields {
+		var fields []map[string]string
+		fields, e := j.getAllFields()
+		if e != nil {
+			print_error(e, 1)
+		} else {
+			print_fields(fields)
+		}
+	} else if *from != "" && *to != "" {
+		// get entries between dates
+		entries, e := j.getEntriesBetween(*from, *to)
+		if e != nil {
+			print_error(e, 1)
+		} else {
+			for _, entry := range entries {
+				print_entry(entry, *plaintext)
+			}
+		}
 	}
 
 	e = j.save()
 
 	if e != nil {
-		print_error(e, 1)
+		print_error(e, 3)
 	}
 }

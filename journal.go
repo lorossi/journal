@@ -96,7 +96,7 @@ func (j *Journal) save() (e error) {
 }
 
 // create a new entry
-func (j *Journal) createEntry(entry string) {
+func (j *Journal) createEntry(entry, hour string) {
 	// array of separators that end the title
 	var delimiters = []string{".", ",", "?", "!", "+", "@"}
 	var current_delimiter string
@@ -114,6 +114,13 @@ func (j *Journal) createEntry(entry string) {
 
 	// find the submitted date and the entry without the (eventual) date
 	content, new_date = parse_day_entry(entry, j.time_format)
+
+	if hour != "" {
+		hour_obj, e := time.Parse("15.04", hour)
+		if e == nil {
+			new_date = time.Date(new_date.Year(), new_date.Month(), new_date.Day(), hour_obj.Hour(), hour_obj.Minute(), 0, 0, new_date.Location())
+		}
+	}
 	// find the delimiter between title and content
 	current_delimiter = find_delimiter(entry, delimiters)
 
@@ -256,12 +263,35 @@ func (j *Journal) getAllEntries() ([]Entry, error) {
 	}
 }
 
-func (j *Journal) searchKeywords(keywords []string) ([]Entry, error) {
-	var entries []Entry
-	for _, e := range j.Entries {
+func (j *Journal) getEntriesBetween(start_timestamp, end_timestamp string) (entries []Entry, e error) {
+	var start, end time.Time
+	start, e = time.Parse("2006-01-02", start_timestamp)
+	if e != nil {
+		return make([]Entry, 0), errors.New("cannot parse start date")
+	}
+	end, e = time.Parse("2006-01-02", end_timestamp)
+	if e != nil {
+		return make([]Entry, 0), errors.New("cannot parse end date")
+	}
+
+	for _, entry := range j.Entries {
+		if date_between(entry.time_obj, start, end) {
+			entries = append(entries, entry)
+		}
+	}
+
+	if len(entries) > 0 {
+		return entries, nil
+	} else {
+		return make([]Entry, 0), errors.New("no entries found between those dates")
+	}
+}
+
+func (j *Journal) searchKeywords(keywords []string) (entries []Entry, e error) {
+	for _, entry := range j.Entries {
 		for _, k := range keywords {
-			if strings.Contains(e.Title, k) || strings.Contains(e.Content, k) {
-				entries = append(entries, e)
+			if strings.Contains(entry.Title, k) || strings.Contains(entry.Content, k) {
+				entries = append(entries, entry)
 			}
 		}
 	}
@@ -275,11 +305,11 @@ func (j *Journal) searchKeywords(keywords []string) ([]Entry, error) {
 
 func (j *Journal) searchTags(tags []string) ([]Entry, error) {
 	var entries []Entry
-	for _, e := range j.Entries {
-		for _, entry_tag := range e.Tags {
+	for _, entry := range j.Entries {
+		for _, entry_tag := range entry.Tags {
 			for _, t := range tags {
 				if entry_tag == t {
-					entries = append(entries, e)
+					entries = append(entries, entry)
 					break
 				}
 			}
@@ -294,10 +324,10 @@ func (j *Journal) searchTags(tags []string) ([]Entry, error) {
 }
 
 func (j *Journal) searchFields(keys []string) (entries []Entry, e error) {
-	for _, e := range j.Entries {
+	for _, entry := range j.Entries {
 		for _, k := range keys {
-			if _, ok := e.Fields[k]; ok {
-				entries = append(entries, e)
+			if _, ok := entry.Fields[k]; ok {
+				entries = append(entries, entry)
 			}
 		}
 	}
@@ -306,5 +336,34 @@ func (j *Journal) searchFields(keys []string) (entries []Entry, e error) {
 		return entries, nil
 	} else {
 		return make([]Entry, 0), errors.New("no entries found with the field")
+	}
+}
+
+func (j *Journal) getAllTags() (tags map[string]int, e error) {
+	tags = make(map[string]int)
+	for _, entry := range j.Entries {
+		for _, tag := range entry.Tags {
+			tags[tag] += 1
+		}
+	}
+
+	if len(tags) > 0 {
+		return tags, nil
+	} else {
+		return make(map[string]int), errors.New("no tags found")
+	}
+}
+
+func (j *Journal) getAllFields() (fields []map[string]string, e error) {
+	for _, entry := range j.Entries {
+		if len(entry.Fields) > 0 {
+			fields = append(fields, entry.Fields)
+		}
+	}
+
+	if len(fields) > 0 {
+		return fields, nil
+	} else {
+		return make([]map[string]string, 0), errors.New("no fields found")
 	}
 }

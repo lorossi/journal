@@ -55,6 +55,15 @@ will store `tag` and `happiness` as tags for today's entry. Of course tags can b
 
 will store `run: 10km` in todays entry. Of course fields can be used in combination of the previous settings.
 
+### Time
+Set a different time (24 hours format) than now for an entry:
+
+`journal --time 06.55 --add today: I just woke up! I totally did not set the time later`
+
+`journal --time 15.30 --add yesterday: i went to bed early!`
+
+`journal --time 9.00 --add 2020/07/03 to the judge: i totally was at home`
+
 ## View entry (or multiple entries)
 View an entry for an arbitrary date:
 
@@ -67,6 +76,11 @@ View all entries from one month or from one year:
 View all entries:
 
 `journal --view all`
+
+### View entry between two dates
+View entry between two dates (inclusive):
+
+`journal --from 2020-01-01 --to 2021-06-01`
 
 ## Remove entry
 Remove entry for today:
@@ -107,6 +121,11 @@ Search tags "airplane" and "ferry":
 
 `journal --searchtags lake sushi`
 
+### Get all tags
+Get all tags and their total usage:
+
+`journal --tags`
+
 ## Search entries by field
 The field will be matched against the ones stored in each entry. If an entry matches ANY of the fields keys, it will be shown.
 
@@ -117,6 +136,11 @@ Search field with key `pushups`
 Search fields with key `burpess` and `slices_of_cake`:
 
 `journal --searchfields burpees slices_of_cake`
+
+### Get all fields
+Get all used fields and their relative values:
+
+`--journal --fields`
 
 # Credits
 Thanks to [faith](github.com/fatih) for his [color](github.com/fatih/color) package
