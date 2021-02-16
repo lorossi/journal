@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -29,7 +30,6 @@ func remove_multiple_spaces(entry string) string {
 
 func parse_entry(entry, time_format string) (string, time.Time) {
 	parsed_day, level := parse_day(entry)
-	fmt.Println(level)
 	if level == 0 {
 		words := strings.Split(entry, " ")
 		return strings.Join(words[1:], " "), parsed_day
@@ -90,8 +90,8 @@ func date_between(current, start, end time.Time) bool {
 	return current.After(start) && current.Before(end)
 }
 
-func print_entry(entry Entry, plaintext bool) {
-	if plaintext {
+func print_entry(entry Entry, print_plaintext bool, print_json bool) {
+	if print_plaintext {
 		// print date
 		fmt.Print("[", entry.Timestamp, "] ")
 		// print title
@@ -110,6 +110,9 @@ func print_entry(entry Entry, plaintext bool) {
 		fmt.Print(" ")
 		// end line
 		fmt.Println()
+	} else if print_json {
+		JSON_bytes, _ := json.MarshalIndent(entry, "", "  ")
+		fmt.Println(string(JSON_bytes))
 	} else {
 		// print timestamp
 		fmt.Println()

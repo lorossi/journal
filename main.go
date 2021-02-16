@@ -13,7 +13,8 @@ func main() {
 	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
-	plaintext := flag.Bool("plaintext", false, "show as plaintext")
+	print_plaintext := flag.Bool("plaintext", false, "show as plaintext")
+	print_json := flag.Bool("json", false, "show as json")
 	hour := flag.String("time", "", "set a time. Only valied if passed with \"add\" flag. Format: hh.mm (24 hour format)")
 	tags := flag.Bool("tags", false, "show all tags")
 	fields := flag.Bool("fields", false, "show all fields")
@@ -67,7 +68,7 @@ func main() {
 				print_error(e, 1)
 			} else {
 				for _, entry := range entries {
-					print_entry(entry, *plaintext)
+					print_entry(entry, *print_plaintext, *print_json)
 				}
 			}
 		} else if *from != "" && *to != "" {
@@ -77,7 +78,7 @@ func main() {
 				print_error(e, 1)
 			} else {
 				for _, entry := range entries {
-					print_entry(entry, *plaintext)
+					print_entry(entry, *print_plaintext, *print_json)
 				}
 			}
 		} else {
@@ -87,7 +88,7 @@ func main() {
 				print_error(e, 1)
 			} else {
 				for _, entry := range entries {
-					print_entry(entry, *plaintext)
+					print_entry(entry, *print_plaintext, *print_json)
 				}
 			}
 		}
@@ -101,7 +102,7 @@ func main() {
 			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
-				print_entry(entry, *plaintext)
+				print_entry(entry, *print_plaintext, *print_json)
 			}
 		}
 	} else if *searchtags != "" {
@@ -114,7 +115,7 @@ func main() {
 			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
-				print_entry(entry, *plaintext)
+				print_entry(entry, *print_plaintext, *print_json)
 			}
 		}
 	} else if *searchfields != "" {
@@ -127,7 +128,7 @@ func main() {
 			print_error(e, 1)
 		} else {
 			for _, entry := range entries {
-				print_entry(entry, *plaintext)
+				print_entry(entry, *print_plaintext, *print_json)
 			}
 		}
 	} else if *tags {
