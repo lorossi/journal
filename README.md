@@ -148,4 +148,6 @@ Get all used fields and their relative values:
 `--journal --fields`
 
 # Credits
-Thanks to [faith](github.com/fatih) for his [color](github.com/fatih/color) package
+Thanks to [faith](github.com/fatih) for his [color](github.com/fatih/color) package.
+
+This project is distributed under CC 4.0 License.
