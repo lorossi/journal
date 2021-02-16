@@ -113,7 +113,7 @@ func (j *Journal) createEntry(entry, hour string) {
 	var new_entry Entry
 
 	// find the submitted date and the entry without the (eventual) date
-	content, new_date = parse_day_entry(entry, j.time_format)
+	content, new_date = parse_entry(entry, j.time_format)
 
 	if hour != "" {
 		hour_obj, e := time.Parse("15.04", hour)
@@ -185,7 +185,7 @@ func (j *Journal) createEntry(entry, hour string) {
 
 func (j *Journal) removeEntry(timestamp string) (e error) {
 	var remove_date time.Time
-	var level int8
+	var level int
 	var clean_entries []Entry
 
 	// get the date from the string
@@ -225,10 +225,11 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 	}
 }
 
-func (j *Journal) viewEntry(timestamp string) (entry Entry, e error) {
+func (j *Journal) viewEntries(timestamp string) (entries []Entry, e error) {
 	var get_date time.Time
-	var level int8
+	var level int
 
+	entries = make([]Entry, 0)
 	get_date, level = parse_day(timestamp)
 
 	// loop throught every entry and look for one with the desired day
@@ -236,22 +237,27 @@ func (j *Journal) viewEntry(timestamp string) (entry Entry, e error) {
 		switch level {
 		case 0:
 			if same_day(e.time_obj, get_date) {
-				return e, nil
+				entries = append(entries, e)
 			}
 		case 1:
 			if same_month(e.time_obj, get_date) {
-				return e, nil
+				entries = append(entries, e)
 			}
 		case 2:
 			if same_year(e.time_obj, get_date) {
-				return e, nil
+				entries = append(entries, e)
 			}
 		}
 	}
 
 	// if the loop has ended and none has been found, return an empty entry and
 	// an error
-	return Entry{}, errors.New("entry not found")
+	if len(entries) == 0 {
+		return make([]Entry, 0), errors.New("no entries found")
+	}
+
+	// otherwise, return the entries
+	return entries, nil
 }
 
 func (j *Journal) getAllEntries() ([]Entry, error) {
@@ -260,6 +266,35 @@ func (j *Journal) getAllEntries() ([]Entry, error) {
 	} else {
 		// if there are no entries, return the empty slice and set an error
 		return make([]Entry, 0), errors.New("no entries found")
+	}
+}
+
+func (j *Journal) removeEntriesBetween(start_timestamp, end_timestamp string) (e error) {
+	var start, end time.Time
+	var clean_entries []Entry
+
+	start, e = time.Parse("2006-01-02", start_timestamp)
+	if e != nil {
+		return errors.New("cannot parse start date")
+	}
+	end, e = time.Parse("2006-01-02", end_timestamp)
+	if e != nil {
+		return errors.New("cannot parse end date")
+	}
+
+	for _, entry := range j.Entries {
+		if !date_between(entry.time_obj, start, end) {
+			clean_entries = append(clean_entries, entry)
+		}
+	}
+
+	if len(clean_entries) == len(j.Entries) {
+		// no entries were removed
+		return errors.New("entries not found")
+	} else {
+		// replace the entries with a new slice
+		j.Entries = clean_entries
+		return nil
 	}
 }
 

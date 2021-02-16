@@ -27,29 +27,18 @@ func remove_multiple_spaces(entry string) string {
 	return entry
 }
 
-func parse_day_entry(entry, time_format string) (string, time.Time) {
-	switch words := strings.Split(entry, " "); strings.ToLower(words[0]) {
-	case "yesterday:":
-		// the first word was yesterday. Return today's date MINUS one day
-		return strings.Join(words[1:], " "), time.Now().AddDate(0, 0, -1)
-	case "today:":
-		// the first word was today. Return today's date
-		return strings.Join(words[1:], " "), time.Now()
-	default:
-		// the first word wasn't either yesterday or today.
-		// try to parse the date. If it work, remove the first word.
-		// If it doesn't work, the date is today (the first word
-		// does not indicate the date)
-		time_obj, e := time.Parse(time_format, words[0])
-		if e == nil {
-			return strings.Join(words[1:], " "), time_obj
-		} else {
-			return entry, time.Now()
-		}
+func parse_entry(entry, time_format string) (string, time.Time) {
+	parsed_day, level := parse_day(entry)
+	fmt.Println(level)
+	if level == 0 {
+		words := strings.Split(entry, " ")
+		return strings.Join(words[1:], " "), parsed_day
+	} else {
+		return entry, time.Now()
 	}
 }
 
-func parse_day(entry string) (time_obj time.Time, level int8) {
+func parse_day(entry string) (time_obj time.Time, level int) {
 	switch first_word := strings.Split(entry, " ")[0]; strings.ToLower(first_word) {
 	case "yesterday":
 		// the first word was yesterday. Return today's date MINUS one day
@@ -62,25 +51,26 @@ func parse_day(entry string) (time_obj time.Time, level int8) {
 		// try to parse the date. If it work, remove the first word.
 		// If it doesn't work, the date is today (the first word
 		// does not indicate the date)
-		// this is the digital version of a powerdrill. Gotta find a better way
-		time_obj, e := time.Parse("2006-01-02", first_word)
-		if e == nil {
-			return time_obj, 0
-		} else {
-			// returns zero (epoch time)
-			time_obj, e := time.Parse("2006-01", first_word)
-			if e == nil {
-				return time_obj, 1
-			} else {
-				time_obj, e := time.Parse("2006", first_word)
-				if e == nil {
-					return time_obj, 2
-				} else {
-					return time.Time{}, -1
-				}
-			}
+		time_templates := [...]string{"2006-01-02", "2006-01", "2006"}
 
+		for i, template := range time_templates {
+			time_obj, e := time.Parse(template, first_word)
+			if e == nil {
+				return time_obj, i
+			}
 		}
+
+		// now try matching against weekday
+		_, e := time.Parse("Monday", first_word)
+		if e == nil {
+			now := time.Now()
+			for !strings.EqualFold(first_word, now.Weekday().String()) {
+				now = now.AddDate(0, 0, -1)
+			}
+			return now, 0
+		}
+
+		return time.Time{}, -1
 	}
 }
 
@@ -123,7 +113,7 @@ func print_entry(entry Entry, plaintext bool) {
 	} else {
 		// print timestamp
 		fmt.Println()
-		color.Set(color.FgHiGreen)
+		color.Set(color.FgHiBlue)
 		fmt.Print("Date: ")
 		color.Unset()
 		fmt.Println(entry.Timestamp)

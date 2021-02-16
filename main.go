@@ -17,8 +17,8 @@ func main() {
 	hour := flag.String("time", "", "set a time. Only valied if passed with \"add\" flag. Format: hh.mm (24 hour format)")
 	tags := flag.Bool("tags", false, "show all tags")
 	fields := flag.Bool("fields", false, "show all fields")
-	from := flag.String("from", "", "starting date. Only valied if passed with \"add\" flag. Format: YYYY-MM-DD")
-	to := flag.String("to", "", "ending date. Only valied if passed with \"add\" flag. Format: YYYY-MM-DD")
+	from := flag.String("from", "", "starting date. Only valied if passed with --view --remove flags and \"all\" argument. Format: YYYY-MM-DD")
+	to := flag.String("to", "", "ending date. Only valied if passed with --view --remove flag and \"all\" argument. Format: YYYY-MM-DD")
 	flag.Parse()
 
 	// no commands were provided and no text was written
@@ -49,7 +49,12 @@ func main() {
 		entry := string(*add) + " " + strings.Join(flag.Args(), " ")
 		j.createEntry(entry, *hour)
 	} else if *remove != "" {
-		e := j.removeEntry(*remove)
+		var e error
+		if *remove == "all" && *from != "" && *to != "" {
+			e = j.removeEntriesBetween(*from, *to)
+		} else {
+			e = j.removeEntry(*remove)
+		}
 		if e != nil {
 			print_error(e, 2)
 		}
@@ -65,13 +70,25 @@ func main() {
 					print_entry(entry, *plaintext)
 				}
 			}
-		} else {
-			// check if the parameter is some kind of date
-			entry, e := j.viewEntry(*view)
+		} else if *from != "" && *to != "" {
+			// get entries between dates
+			entries, e := j.getEntriesBetween(*from, *to)
 			if e != nil {
 				print_error(e, 1)
 			} else {
-				print_entry(entry, *plaintext)
+				for _, entry := range entries {
+					print_entry(entry, *plaintext)
+				}
+			}
+		} else {
+			// check if the parameter is some kind of date
+			entries, e := j.viewEntries(*view)
+			if e != nil {
+				print_error(e, 1)
+			} else {
+				for _, entry := range entries {
+					print_entry(entry, *plaintext)
+				}
 			}
 		}
 	} else if *searchkeywords != "" {
@@ -129,16 +146,11 @@ func main() {
 		} else {
 			print_fields(fields)
 		}
-	} else if *from != "" && *to != "" {
-		// get entries between dates
-		entries, e := j.getEntriesBetween(*from, *to)
-		if e != nil {
-			print_error(e, 1)
-		} else {
-			for _, entry := range entries {
-				print_entry(entry, *plaintext)
-			}
-		}
+	} else {
+		// not a single valid option has been called
+		flag.PrintDefaults()
+		// now exit
+		return
 	}
 
 	e = j.save()

@@ -25,15 +25,15 @@ Or skip the parameter and just write the entry:
 
 `journal Dear Diary, today I was so tired...`
 
-You can also specify the day by writing `today:`
+You can also specify the day by writing `today`
 
-`journal Today: i started using this new journal software! It works really good.`
+`journal Today i started using this new journal software! It works really good.`
 
 Add entry for yesterday:
 
-`journal --add yesterday: Dear diary, today i studied so much...`
+`journal --add yesterday Dear diary, today i studied so much...`
 
-`journal yesterday: Dear diary, today i studied so much...`
+`journal yesterday Dear diary, today i studied so much...`
 
 Add entry for arbitrary date:
 
@@ -80,7 +80,7 @@ View all entries:
 ### View entry between two dates
 View entry between two dates (inclusive):
 
-`journal --from 2020-01-01 --to 2021-06-01`
+`journal --view all --from 2020-01-01 --to 2021-06-01`
 
 ## Remove entry
 Remove entry for today:
@@ -98,6 +98,11 @@ Remove entry for arbitrary date:
 Remove all entries from one month or from one year:
 
 `journal --remove 2020-01` `journal --remove 2020`
+
+### Remove entry between two dates
+Remove entry between two dates (inclusive):
+
+`journal --remove all --from 2020-01-01 --to 2021-06-01`
 
 ## Search entries by keyword
 The keywords will be matched against words in the title and the content of each entry. If an entry matches ANY of the keywords, it will be shown.
