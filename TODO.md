@@ -5,7 +5,7 @@
 3. ~Fields~ `@field:value`**DONE**
 4. ~Entries with different time than now~ **DONE**
 5. ~Append to entry instead of creating new one~ **DONE** *(properly)*
-6. Edit old entries *but why would one do that?*
+6. Edit old entries *but why would anyone do that?*
 7. ~Escape characters~ *The user must be the one escaping characters. Nothing i can do.*
 8. Diary Encryption
 9. ~Add commands to view all fields and tags~ **DONE**
