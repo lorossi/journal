@@ -107,6 +107,10 @@ Remove all entries from one month or from one year:
 
 `journal --remove 2020-01` `journal --remove 2020`
 
+Remove all entries from the diary:
+
+`journal --remove all`
+
 ### Remove entry between two dates
 Remove entry between two dates (inclusive):
 

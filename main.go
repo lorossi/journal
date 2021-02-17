@@ -4,6 +4,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"strings"
@@ -85,8 +86,14 @@ func main() {
 		j.createEntry(entry, *hour)
 	} else if *remove != "" {
 		var e error
-		if *remove == "all" && *from != "" && *to != "" {
-			e = j.removeEntriesBetween(*from, *to)
+		if *remove == "all" {
+			if *from != "" && *to != "" {
+				e = j.removeEntriesBetween(*from, *to)
+			} else if *from == "" && *to == "" {
+				j.removeAllEntries()
+			} else {
+				print_error(errors.New("wrong parameter with remove flag"), 2)
+			}
 		} else {
 			e = j.removeEntry(*remove)
 		}
