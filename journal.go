@@ -33,7 +33,7 @@ type Journal struct {
 
 func crate_journal() (j Journal) {
 	j = Journal{
-		path:        "database.json",
+		path:        "journal",
 		time_format: "2006-01-02 15:04:05",
 		Last_loaded: time.Now().Format(time.RFC3339),
 		Version:     "1.0.0",
