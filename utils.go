@@ -19,8 +19,15 @@ func get_password() (password string, e error) {
 		return "", errors.New("cannot load password")
 	}
 
+	// newline (doesn't get added automatically)
+	fmt.Println()
+	// pad password to length
 	for len(bytepw) < 32 {
 		bytepw = append(bytepw, '0')
+	}
+	// if the password it's too long, chop it
+	if len(bytepw) > 32 {
+		bytepw = bytepw[:32]
 	}
 
 	return string(bytepw), e

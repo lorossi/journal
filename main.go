@@ -1,3 +1,6 @@
+// made by Lorenzo Rossi - www.lorenzoros.si
+// GitHub repo: github.com/lorossi/journal
+
 package main
 
 import (
@@ -33,7 +36,7 @@ func main() {
 		return
 	}
 
-	// vreate empty Journal
+	// create empty Journal
 	j := crate_journal()
 
 	// load from database
