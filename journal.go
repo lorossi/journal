@@ -60,11 +60,6 @@ func crate_journal() (j Journal, e error) {
 		path:        journal_folder + "/journal.json",
 	}
 
-	// DEBUG: CHANGE THIS IN PRODUCTION
-	j.path = "debug.json"
-	// DEBUG:  REMEMBER TO CHANGE THIS ^^^^^^^^^^^
-	// DEBUG: PLEASE CHANGE THIS ^^^^^^^^^^
-
 	return j, nil
 }
 
