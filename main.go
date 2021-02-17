@@ -5,11 +5,15 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 func main() {
 	// add flags
+	version := flag.Bool("version", false, "show current version")
 	add := flag.String("add", "", "add an entry to the journal. Date format: today:, yesterday:, YYYY-MM-DD")
 	remove := flag.String("remove", "", "remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
 	view := flag.String("view", "", "view an entry or all entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
@@ -38,6 +42,14 @@ func main() {
 
 	// create empty Journal
 	j := crate_journal()
+
+	if *version {
+		color.Set(color.FgHiGreen)
+		fmt.Print("Version ")
+		color.Unset()
+		fmt.Println(j.Version)
+		return
+	}
 
 	// load from database
 	if *decrypt {

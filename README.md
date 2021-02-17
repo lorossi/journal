@@ -1,6 +1,14 @@
 # Journal
 *A simple CLI journal made in Go*
 
+## Installation
+Clone the repo and use the pre compiled binaries inside the `binaries` folder (or download the [latest release](https://github.com/lorossi/go-journal/releases/latest)).
+
+- On *Linux*, use the installer by running `sudo sh installer.sh` to move the binary inside the `PATH` folder in order to run it from everywhere.
+- On *Windows*, open the command prompt and navigate to where the executable resides.
+
+Otherwise, clone the repo and build it from source.
+
 ## Goals
 I want to implement a simple CLI (command line interface) journal in Go, as a way to excercise and learn it.
 
