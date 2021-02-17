@@ -15,7 +15,7 @@ import (
 func main() {
 	// add flags
 	version := flag.Bool("version", false, "show current version")
-	add := flag.String("add", "", "add an entry to the journal. Date format: today:, yesterday:, YYYY-MM-DD")
+	add := flag.String("add", "", "add an entry to the journal. Date format: today:, yesterday:, YYYY-MM-DD, YYYY-MM-DD hh.mm")
 	remove := flag.String("remove", "", "remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
 	view := flag.String("view", "", "view an entry or all entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
 	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
@@ -23,7 +23,6 @@ func main() {
 	searchfields := flag.String("searchfields", "", "search entries by fields")
 	print_plaintext := flag.Bool("plaintext", false, "show as plaintext")
 	print_json := flag.Bool("json", false, "show as json")
-	hour := flag.String("time", "", "set a time. Only valied if passed with \"add\" flag. Format: hh.mm (24 hour format)")
 	tags := flag.Bool("tags", false, "show all tags")
 	fields := flag.Bool("fields", false, "show all fields")
 	from := flag.String("from", "", "starting date. Only valied if passed with --view --remove flags and \"all\" argument. Format: YYYY-MM-DD")
@@ -81,13 +80,13 @@ func main() {
 	// no commands were provided but some text was recognized
 	if flag.NFlag() == 0 && flag.NArg() > 0 {
 		entry := strings.Join(flag.Args(), " ")
-		j.createEntry(entry, "")
+		j.createEntry(entry)
 	} else if *add != "" {
 		// get text provided by the flag
 		// get remainder text
 		// concantenate them
 		entry := string(*add) + " " + strings.Join(flag.Args(), " ")
-		j.createEntry(entry, *hour)
+		j.createEntry(entry)
 	} else if *remove != "" {
 		var e error
 		if *remove == "all" {

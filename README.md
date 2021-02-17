@@ -66,11 +66,11 @@ will store `run: 10km` in todays entry. Of course fields can be used in combinat
 ### Time
 Set a different time (24 hours format) than now for an entry:
 
-`journal --time 06.55 --add today: I just woke up! I totally did not set the time later`
+`journal today 12.32 I just woke up! I totally did not set the time later`
 
-`journal --time 15.30 --add yesterday: i went to bed early!`
+`journal yesterday 7.24 i went to bed early!`
 
-`journal --time 9.00 --add 2020/07/03 to the judge: i totally was at home`
+`journal 2020/07/03 9.00 to the judge: i totally was at home`
 
 ## View entry (or multiple entries)
 View an entry for an arbitrary date:
@@ -136,7 +136,7 @@ Search tag "fun":
 
 Search tags "airplane" and "ferry":
 
-`journal --searchtags lake sushi`
+`journal --searchtags airplane ferry`
 
 ### Get all tags
 Get all tags and their total usage:

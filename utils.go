@@ -56,6 +56,9 @@ func parse_entry(entry, time_format string) (string, time.Time) {
 	parsed_day, level := parse_day(entry)
 	if level == 0 {
 		words := strings.Split(entry, " ")
+		return strings.Join(words[2:], " "), parsed_day
+	} else if level == 1 {
+		words := strings.Split(entry, " ")
 		return strings.Join(words[1:], " "), parsed_day
 	} else {
 		return entry, time.Now()
@@ -63,39 +66,60 @@ func parse_entry(entry, time_format string) (string, time.Time) {
 }
 
 func parse_day(entry string) (time_obj time.Time, level int) {
-	switch first_word := strings.Split(entry, " ")[0]; strings.ToLower(first_word) {
-	case "yesterday":
-		// the first word was yesterday. Return today's date MINUS one day
-		return time.Now().AddDate(0, 0, -1), 0
-	case "today":
-		// the first word was today. Return today's date
-		return time.Now(), 0
-	default:
-		// the first word wasn't either yesterday or today.
-		// try to parse the date. If it work, remove the first word.
-		// If it doesn't work, the date is today (the first word
-		// does not indicate the date)
-		time_templates := [...]string{"2006-01-02", "2006-01", "2006"}
+	first_word := strings.Split(entry, " ")[0]
+	second_word := strings.Split(entry, " ")[1]
 
-		for i, template := range time_templates {
-			time_obj, e := time.Parse(template, first_word)
-			if e == nil {
-				return time_obj, i
-			}
-		}
-
-		// now try matching against weekday
-		_, e := time.Parse("Monday", first_word)
+	hour_obj, hour_err := func(hour_str string) (time.Time, error) {
+		time_obj, e := time.Parse("15.04", hour_str)
 		if e == nil {
-			now := time.Now()
-			for !strings.EqualFold(first_word, now.Weekday().String()) {
-				now = now.AddDate(0, 0, -1)
-			}
-			return now, 0
+			return time_obj, e
 		}
+		return time.Time{}, e
+	}(second_word)
 
-		return time.Time{}, -1
+	date_obj, level := func(date_str string) (time.Time, int) {
+		switch first_word := strings.Split(entry, " ")[0]; strings.ToLower(first_word) {
+		case "yesterday":
+			// the first word was yesterday. Return today's date MINUS one day
+			return time.Now().AddDate(0, 0, -1), 1
+		case "today":
+			// the first word was today. Return today's date
+			return time.Now(), 1
+		default:
+			// check the second word, it might be time
+
+			// the first word wasn't either yesterday or today.
+			// try to parse the date. If it work, remove the first word.
+			// If it doesn't work, the date is today (the first word
+			// does not indicate the date)
+			time_templates := [...]string{"2006-01-02", "2006-01-02", "2006-01", "2006"}
+
+			for level, template := range time_templates {
+				time_obj, e := time.Parse(template, first_word)
+				if e == nil {
+					return time_obj, level + 1
+				}
+			}
+
+			// now try matching against weekday
+			_, e := time.Parse("Monday", first_word)
+			if e == nil {
+				now := time.Now()
+				for !strings.EqualFold(first_word, now.Weekday().String()) {
+					now = now.AddDate(0, 0, -1)
+				}
+				return now, 1
+			}
+
+			return time.Time{}, -1
+		}
+	}(first_word)
+
+	if hour_err == nil && level != -1 {
+		new_date := time.Date(date_obj.Year(), date_obj.Month(), date_obj.Day(), hour_obj.Hour(), hour_obj.Minute(), 0, 0, date_obj.Location())
+		return new_date, level - 1
 	}
+	return date_obj, level
 }
 
 func same_day(date_1, date_2 time.Time) bool {

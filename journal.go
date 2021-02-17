@@ -60,6 +60,8 @@ func crate_journal() (j Journal, e error) {
 		path:        journal_folder + "/journal.json",
 	}
 
+	// DEBUG: CHANGE THIS IN PRODUCTION
+	j.path = "debug.json"
 	return j, nil
 }
 
@@ -210,7 +212,7 @@ func (j *Journal) encrypt() (e error) {
 }
 
 // create a new entry
-func (j *Journal) createEntry(entry, hour string) {
+func (j *Journal) createEntry(entry string) {
 	// array of separators that end the title
 	var delimiters = []string{".", "?", "!", "+", "@"}
 	var current_delimiter string
@@ -228,15 +230,12 @@ func (j *Journal) createEntry(entry, hour string) {
 
 	// find the submitted date and the entry without the (eventual) date
 	content, new_date = parse_entry(entry, j.time_format)
-
-	if hour != "" {
-		hour_obj, e := time.Parse("15.04", hour)
-		if e == nil {
-			new_date = time.Date(new_date.Year(), new_date.Month(), new_date.Day(), hour_obj.Hour(), hour_obj.Minute(), 0, 0, new_date.Location())
-		}
+	if content == "" {
+		return
 	}
+
 	// find the delimiter between title and content
-	current_delimiter = find_delimiter(entry, delimiters)
+	current_delimiter = find_delimiter(content, delimiters)
 
 	if current_delimiter == "" {
 		// the title is the whole entry
