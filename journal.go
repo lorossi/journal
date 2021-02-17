@@ -44,7 +44,7 @@ func crate_journal() (j Journal, e error) {
 		// macOS, might need testing
 		journal_folder = "~/Library/Preferences/journal"
 	} else if runtime.GOOS == "windows" {
-		journal_folder = "c://journal"
+		journal_folder = "c:/journal"
 	}
 
 	if _, e := os.Stat(journal_folder); os.IsNotExist(e) {
@@ -56,12 +56,15 @@ func crate_journal() (j Journal, e error) {
 	j = Journal{
 		time_format: "2006-01-02 15:04:05",
 		Last_loaded: time.Now().Format(time.RFC3339),
-		Version:     "1.0.1",
+		Version:     "1.1.0",
 		path:        journal_folder + "/journal.json",
 	}
 
 	// DEBUG: CHANGE THIS IN PRODUCTION
 	j.path = "debug.json"
+	// DEBUG:  REMEMBER TO CHANGE THIS ^^^^^^^^^^^
+	// DEBUG: PLEASE CHANGE THIS ^^^^^^^^^^
+
 	return j, nil
 }
 
@@ -338,7 +341,7 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 	}
 }
 
-func (j *Journal) viewEntries(timestamp string) (entries []Entry, e error) {
+func (j *Journal) showEntries(timestamp string) (entries []Entry, e error) {
 	var get_date time.Time
 	var level int
 

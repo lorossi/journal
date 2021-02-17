@@ -15,9 +15,9 @@ import (
 func main() {
 	// add flags
 	version := flag.Bool("version", false, "show current version")
-	add := flag.String("add", "", "add an entry to the journal. Date format: today:, yesterday:, YYYY-MM-DD, YYYY-MM-DD hh.mm")
+	add := flag.String("add", "", "add an entry to the journal. Date format: today, yesterday, weekday (monday-sunday) YYYY-MM-DD, YYYY-MM-DD. You can also set a time in format hh.mm")
 	remove := flag.String("remove", "", "remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
-	view := flag.String("view", "", "view an entry or all entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
+	show := flag.String("show", "", "show an entry or all entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
 	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
@@ -25,8 +25,8 @@ func main() {
 	print_json := flag.Bool("json", false, "show as json")
 	tags := flag.Bool("tags", false, "show all tags")
 	fields := flag.Bool("fields", false, "show all fields")
-	from := flag.String("from", "", "starting date. Only valied if passed with --view --remove flags and \"all\" argument. Format: YYYY-MM-DD")
-	to := flag.String("to", "", "ending date. Only valied if passed with --view --remove flag and \"all\" argument. Format: YYYY-MM-DD")
+	from := flag.String("from", "", "starting date. Only valied if passed with --show --remove flags and \"all\" argument. Format: YYYY-MM-DD")
+	to := flag.String("to", "", "ending date. Only valied if passed with --show --remove flag and \"all\" argument. Format: YYYY-MM-DD")
 	encrypt := flag.Bool("encrypt", false, "encrypt journal using AES")
 	decrypt := flag.Bool("decrypt", false, "decrypt using AES")
 	remove_password := flag.Bool("removepassword", false, "permanently decrypt a journal. This cannot be reversed.")
@@ -103,9 +103,9 @@ func main() {
 		if e != nil {
 			print_error(e, 2)
 		}
-	} else if *view != "" {
+	} else if *show != "" {
 		// get entry by date
-		if strings.ToLower(*view) == "all" {
+		if strings.ToLower(*show) == "all" {
 			// check if parameter is "all"
 			entries, e := j.getAllEntries()
 			if e != nil {
@@ -123,7 +123,7 @@ func main() {
 			}
 		} else {
 			// check if the parameter is some kind of date
-			entries, e := j.viewEntries(*view)
+			entries, e := j.showEntries(*show)
 			if e != nil {
 				print_error(e, 1)
 			} else {

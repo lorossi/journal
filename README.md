@@ -188,6 +188,9 @@ The output can be formatted either in JSON or plain text by using the correct fl
 
 `journal --view all --plaintext`
 
+## Help
+Use the flag `-h` or `--help` to get a list of all the available options.
+
 # Credits
 Thanks to [faith](github.com/fatih) for his [color](github.com/fatih/color) package.
 
