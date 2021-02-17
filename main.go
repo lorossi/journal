@@ -33,7 +33,6 @@ func main() {
 	j := crate_journal()
 	// load from database
 	e := j.load()
-
 	if e != nil {
 		print_error(e, 3)
 		return
@@ -67,9 +66,7 @@ func main() {
 			if e != nil {
 				print_error(e, 1)
 			} else {
-				for _, entry := range entries {
-					print_entry(entry, *print_plaintext, *print_json)
-				}
+				print_entries(entries, *print_plaintext, *print_json)
 			}
 		} else if *from != "" && *to != "" {
 			// get entries between dates
@@ -77,9 +74,7 @@ func main() {
 			if e != nil {
 				print_error(e, 1)
 			} else {
-				for _, entry := range entries {
-					print_entry(entry, *print_plaintext, *print_json)
-				}
+				print_entries(entries, *print_plaintext, *print_json)
 			}
 		} else {
 			// check if the parameter is some kind of date
@@ -87,9 +82,7 @@ func main() {
 			if e != nil {
 				print_error(e, 1)
 			} else {
-				for _, entry := range entries {
-					print_entry(entry, *print_plaintext, *print_json)
-				}
+				print_entries(entries, *print_plaintext, *print_json)
 			}
 		}
 	} else if *searchkeywords != "" {
@@ -101,9 +94,7 @@ func main() {
 		if e != nil {
 			print_error(e, 1)
 		} else {
-			for _, entry := range entries {
-				print_entry(entry, *print_plaintext, *print_json)
-			}
+			print_entries(entries, *print_plaintext, *print_json)
 		}
 	} else if *searchtags != "" {
 		var tags []string
@@ -114,9 +105,7 @@ func main() {
 		if e != nil {
 			print_error(e, 1)
 		} else {
-			for _, entry := range entries {
-				print_entry(entry, *print_plaintext, *print_json)
-			}
+			print_entries(entries, *print_plaintext, *print_json)
 		}
 	} else if *searchfields != "" {
 		var keys []string
@@ -127,9 +116,7 @@ func main() {
 		if e != nil {
 			print_error(e, 1)
 		} else {
-			for _, entry := range entries {
-				print_entry(entry, *print_plaintext, *print_json)
-			}
+			print_entries(entries, *print_plaintext, *print_json)
 		}
 	} else if *tags {
 		var tags map[string]int
@@ -155,8 +142,7 @@ func main() {
 	}
 
 	e = j.save()
-
 	if e != nil {
-		print_error(e, 3)
+		print_error(e, 2)
 	}
 }

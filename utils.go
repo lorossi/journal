@@ -90,68 +90,72 @@ func date_between(current, start, end time.Time) bool {
 	return current.After(start) && current.Before(end)
 }
 
-func print_entry(entry Entry, print_plaintext bool, print_json bool) {
+func print_entries(entries []Entry, print_plaintext bool, print_json bool) {
 	if print_plaintext {
-		// print date
-		fmt.Print("[", entry.Timestamp, "] ")
-		// print title
-		fmt.Print(entry.Title, " ")
-		// print content
-		fmt.Print(entry.Content, " ")
-		// print tags
-		if len(entry.Tags) > 0 {
-			fmt.Print("+" + strings.Join(entry.Tags, " +"))
+		for _, entry := range entries {
+			// print date
+			fmt.Print("[", entry.Timestamp, "] ")
+			// print title
+			fmt.Print(entry.Title, " ")
+			// print content
+			fmt.Print(entry.Content, " ")
+			// print tags
+			if len(entry.Tags) > 0 {
+				fmt.Print("+" + strings.Join(entry.Tags, " +"))
+			}
+			fmt.Print(" ")
+			// print fields
+			for k, v := range entry.Fields {
+				fmt.Print(k, "=", v, " ")
+			}
+			fmt.Print(" ")
+			// end line
+			fmt.Println()
 		}
-		fmt.Print(" ")
-		// print fields
-		for k, v := range entry.Fields {
-			fmt.Print(k, "=", v, " ")
-		}
-		fmt.Print(" ")
-		// end line
-		fmt.Println()
 	} else if print_json {
-		JSON_bytes, _ := json.MarshalIndent(entry, "", "  ")
+		JSON_bytes, _ := json.MarshalIndent(entries, "", "  ")
 		fmt.Println(string(JSON_bytes))
 	} else {
-		// print timestamp
-		fmt.Println()
-		color.Set(color.FgHiBlue)
-		fmt.Print("Date: ")
-		color.Unset()
-		fmt.Println(entry.Timestamp)
+		for _, entry := range entries {
+			// print timestamp
+			fmt.Println()
+			color.Set(color.FgHiBlue)
+			fmt.Print("Date: ")
+			color.Unset()
+			fmt.Println(entry.Timestamp)
 
-		// print title
-		color.Set(color.FgHiGreen)
-		fmt.Print("Title: ")
-		color.Unset()
-		fmt.Println(entry.Title)
+			// print title
+			color.Set(color.FgHiGreen)
+			fmt.Print("Title: ")
+			color.Unset()
+			fmt.Println(entry.Title)
 
-		// print content
-		color.Set(color.FgHiGreen)
-		fmt.Print("Content: ")
-		color.Unset()
-		fmt.Println(entry.Content)
+			// print content
+			color.Set(color.FgHiGreen)
+			fmt.Print("Content: ")
+			color.Unset()
+			fmt.Println(entry.Content)
 
-		// print tags
-		color.Set(color.FgHiMagenta)
-		fmt.Print("Tags: ")
-		color.Unset()
-		if len(entry.Tags) > 0 {
-			fmt.Print("+" + strings.Join(entry.Tags, " +"))
+			// print tags
+			color.Set(color.FgHiMagenta)
+			fmt.Print("Tags: ")
+			color.Unset()
+			if len(entry.Tags) > 0 {
+				fmt.Print("+" + strings.Join(entry.Tags, " +"))
+			}
+			fmt.Println()
+
+			// print fields
+			color.Set(color.FgHiMagenta)
+			fmt.Print("Fields: ")
+			color.Unset()
+			for k, v := range entry.Fields {
+				fmt.Print(k, "=", v, " ")
+			}
+
+			// add some spacing
+			fmt.Println()
 		}
-		fmt.Println()
-
-		// print fields
-		color.Set(color.FgHiMagenta)
-		fmt.Print("Fields: ")
-		color.Unset()
-		for k, v := range entry.Fields {
-			fmt.Print(k, "=", v, " ")
-		}
-
-		// add some spacing
-		fmt.Println()
 		fmt.Println()
 	}
 }

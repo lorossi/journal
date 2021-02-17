@@ -31,7 +31,7 @@ func crate_journal() (j Journal) {
 		path:        "database.json",
 		time_format: "2006-01-02 15:04:05",
 		Last_loaded: time.Now().Format(time.RFC3339),
-		Version:     "0.0.1",
+		Version:     "1.0.0",
 	}
 
 	return j
@@ -98,7 +98,7 @@ func (j *Journal) save() (e error) {
 // create a new entry
 func (j *Journal) createEntry(entry, hour string) {
 	// array of separators that end the title
-	var delimiters = []string{".", ",", "?", "!", "+", "@"}
+	var delimiters = []string{".", "?", "!", "+", "@"}
 	var current_delimiter string
 	// title, content variables
 	var title, content string
