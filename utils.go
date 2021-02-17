@@ -66,19 +66,15 @@ func parse_entry(entry, time_format string) (string, time.Time) {
 }
 
 func parse_day(entry string) (time_obj time.Time, level int) {
+	var date_obj, hour_obj time.Time
+	var hour_err error
+
+	words := strings.Split(entry, " ")
+
+	// the first word should contain the date
 	first_word := strings.Split(entry, " ")[0]
-	second_word := strings.Split(entry, " ")[1]
-
-	hour_obj, hour_err := func(hour_str string) (time.Time, error) {
-		time_obj, e := time.Parse("15.04", hour_str)
-		if e == nil {
-			return time_obj, e
-		}
-		return time.Time{}, e
-	}(second_word)
-
-	date_obj, level := func(date_str string) (time.Time, int) {
-		switch first_word := strings.Split(entry, " ")[0]; strings.ToLower(first_word) {
+	date_obj, level = func(date_str string) (time.Time, int) {
+		switch date_str {
 		case "yesterday":
 			// the first word was yesterday. Return today's date MINUS one day
 			return time.Now().AddDate(0, 0, -1), 1
@@ -115,10 +111,25 @@ func parse_day(entry string) (time_obj time.Time, level int) {
 		}
 	}(first_word)
 
-	if hour_err == nil && level != -1 {
-		new_date := time.Date(date_obj.Year(), date_obj.Month(), date_obj.Day(), hour_obj.Hour(), hour_obj.Minute(), 0, 0, date_obj.Location())
-		return new_date, level - 1
+	// if there's a second word, check if it contains the hour
+	if len(words) > 1 {
+		second_word := words[1]
+
+		hour_obj, hour_err = func(hour_str string) (time.Time, error) {
+			time_obj, e := time.Parse("15.04", hour_str)
+			if e == nil {
+				return time_obj, e
+			}
+			return time.Time{}, e
+		}(second_word)
+
+		// if no error has been found, create the new date with the correct hour
+		if hour_err == nil && level != -1 {
+			new_date := time.Date(date_obj.Year(), date_obj.Month(), date_obj.Day(), hour_obj.Hour(), hour_obj.Minute(), 0, 0, date_obj.Location())
+			return new_date, level - 1
+		}
 	}
+
 	return date_obj, level
 }
 

@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"runtime"
+	"sort"
 	"strings"
 	"time"
 )
@@ -292,6 +293,8 @@ func (j *Journal) createEntry(entry string) {
 	new_entry = j.createNewEntry(title, content, tags, fields, new_date)
 	// append the entry to the entries array
 	j.Entries = append(j.Entries, new_entry)
+	// sort the entries array
+	sort.Slice(j.Entries, func(i, k int) bool { return j.Entries[i].time_obj.Before(j.Entries[k].time_obj) })
 }
 
 func (j *Journal) removeEntry(timestamp string) (e error) {
@@ -304,8 +307,9 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 	if level == -1 {
 		return errors.New("date was not provided correctly")
 	}
+
 	// init an empty slice of entries
-	clean_entries = clean_entries[:0]
+	clean_entries = make([]Entry, 0)
 	for _, e := range j.Entries {
 		// if the entry has the same date as the timestamp, don't append it
 		// to the new slice of entries

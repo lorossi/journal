@@ -49,9 +49,10 @@ func main() {
 
 	if *version {
 		color.Set(color.FgHiGreen)
-		fmt.Print("Version ")
+		fmt.Print("\n\tJournal Version ")
+		color.Set(color.FgHiMagenta)
+		fmt.Print(j.Version, "\n\n")
 		color.Unset()
-		fmt.Println(j.Version)
 		return
 	}
 
