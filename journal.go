@@ -1,8 +1,12 @@
 package main
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
 	"strings"
 	"time"
@@ -22,6 +26,7 @@ type Journal struct {
 	Last_loaded string  `json:"last_loaded"`
 	Created     string  `json:"created"`
 	Version     string  `json:"version"`
+	Password    string  `json:"-"`
 	path        string
 	time_format string
 }
@@ -35,6 +40,23 @@ func crate_journal() (j Journal) {
 	}
 
 	return j
+}
+
+func read_from_file(path string) (file []byte, e error) {
+	file, e = ioutil.ReadFile(path)
+
+	if e != nil {
+		return []byte("[]"), e
+	}
+	return file, e
+}
+
+func write_to_file(path string, bytes []byte) (e error) {
+	e = ioutil.WriteFile(path, bytes, 0666)
+	if e != nil {
+		return errors.New("error while working with the file. cannot save")
+	}
+	return e
 }
 
 // package the variables into a new entry
@@ -59,16 +81,61 @@ func (j *Journal) createNewEntry(title, content string, tags []string, fields ma
 func (j *Journal) load() (e error) {
 	var file []byte
 	// try to open the file
-	file, e = ioutil.ReadFile(j.path)
-
+	file, e = read_from_file(j.path)
 	// if not available, create an empty one
 	if e != nil {
 		j.Created = time.Now().Format(time.RFC3339)
 		ioutil.WriteFile(j.path, []byte("[]"), 0666)
 		return nil
 	}
+
 	// parse JSON
-	e = json.Unmarshal([]byte(file), &j)
+	e = json.Unmarshal(file, &j)
+	if e != nil {
+		return errors.New("cannot parse database")
+	}
+	// calculate the time for each entry
+	for i := 0; i < len(j.Entries); i++ {
+		j.Entries[i].time_obj, _ = time.Parse(j.time_format, j.Entries[i].Timestamp)
+	}
+
+	return nil
+}
+
+// load and decrypt database
+func (j *Journal) decrypt() (e error) {
+	var file []byte
+	// try to open the file
+	file, e = read_from_file(j.path)
+	if e != nil {
+		return errors.New("cannot open encrypted database")
+	}
+
+	key := []byte(j.Password)
+
+	c, e := aes.NewCipher(key)
+	if e != nil {
+		return errors.New("cannot create new cypher")
+	}
+
+	gcm, e := cipher.NewGCM(c)
+	if e != nil {
+		return errors.New("cannot create new GCM")
+	}
+
+	nonce_size := gcm.NonceSize()
+	if len(file) < nonce_size {
+		return errors.New("file is too short")
+	}
+
+	nonce, ciphertext := file[:nonce_size], file[nonce_size:]
+	plaintext, e := gcm.Open(nil, nonce, ciphertext, nil)
+	if e != nil {
+		return errors.New("cannot decode file")
+	}
+
+	// parse JSON
+	e = json.Unmarshal(plaintext, &j)
 	if e != nil {
 		return errors.New("cannot parse database")
 	}
@@ -88,10 +155,36 @@ func (j *Journal) save() (e error) {
 		return errors.New("error while encoding data. cannot save")
 	}
 	// write to file
-	e = ioutil.WriteFile(j.path, JSON_bytes, 0666)
+	write_to_file(j.path, JSON_bytes)
+	return e
+}
+
+func (j *Journal) encrypt() (e error) {
+	key := []byte(j.Password)
+
+	JSON_bytes, e := json.MarshalIndent(j, "", "  ")
 	if e != nil {
-		return errors.New("error while working with the file. cannot save")
+		return errors.New("error while encoding data. cannot save")
 	}
+
+	c, e := aes.NewCipher(key)
+	if e != nil {
+		return errors.New("cannot create new cypher")
+	}
+
+	gcm, e := cipher.NewGCM(c)
+	if e != nil {
+		return errors.New("cannot create new GCM")
+	}
+
+	nonce := make([]byte, gcm.NonceSize())
+	if _, e := io.ReadFull(rand.Reader, nonce); e != nil {
+		return errors.New("cannot create new random sequence")
+	}
+
+	ciphertext := gcm.Seal(nonce, nonce, JSON_bytes, nil)
+	// write to file
+	e = write_to_file(j.path, ciphertext)
 	return e
 }
 

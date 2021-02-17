@@ -2,12 +2,29 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/fatih/color"
+	"golang.org/x/term"
 )
+
+func get_password() (password string, e error) {
+	fmt.Print("Password: ")
+	bytepw, e := term.ReadPassword(int(os.Stdin.Fd()))
+	if e != nil {
+		return "", errors.New("cannot load password")
+	}
+
+	for len(bytepw) < 32 {
+		bytepw = append(bytepw, '0')
+	}
+
+	return string(bytepw), e
+}
 
 func find_delimiter(entry string, delimiters []string) string {
 	for _, e := range entry {
@@ -174,8 +191,8 @@ func print_tags(tags map[string]int) {
 }
 
 func print_fields(fields []map[string]string) {
-	for _, f := range fields {
-		for k, v := range f {
+	for _, field := range fields {
+		for k, v := range field {
 			// print key
 			color.Set(color.FgHiMagenta)
 			fmt.Print(k, " ")

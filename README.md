@@ -145,7 +145,36 @@ Search fields with key `burpess` and `slices_of_cake`:
 ### Get all fields
 Get all used fields and their relative values:
 
-`--journal --fields`
+`journal --fields`
+
+## Password protection
+The program supports password protection with the AES Encryption algorithm.
+
+### Encryption
+Encrypt a clear database by using the flag `--encrypt`. You will be asked for a password. **Save it** because it won't be stored and if you lose it there's no way of unlocking your journal again.
+
+`journal --encrypt`
+
+### Decryption
+Like in encryption, to decrypt a journal in order to write/read on it, use the flag `--decrypt`. You will be asked for a password.
+
+In case you want to change the password of your journal, use both `--encrypt` and `--decrypt` flags.
+
+### Password removal / change
+If you want to remove the password from your journal, you first have to decrypt it by providing a correct password.
+
+`journal --decrypt --removepassword`
+
+In order to change the password, you have to decrypt and then encrypt it again
+
+`journal --decrypt --encrypt`
+
+## Output formatting
+The output can be formatted either in JSON or plain text by using the correct flags.
+
+`journal --view all --json`
+
+`journal --view all --plaintext`
 
 # Credits
 Thanks to [faith](github.com/fatih) for his [color](github.com/fatih/color) package.

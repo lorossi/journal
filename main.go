@@ -7,9 +7,9 @@ import (
 
 func main() {
 	// add flags
-	add := flag.String("add", "", "add an entry to the diary. Date format: today:, yesterday:, YYYY-MM-DD")
-	remove := flag.String("remove", "", "remove an entry from the diary. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
-	view := flag.String("view", "", "view an entry or all entries from the diary. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
+	add := flag.String("add", "", "add an entry to the journal. Date format: today:, yesterday:, YYYY-MM-DD")
+	remove := flag.String("remove", "", "remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
+	view := flag.String("view", "", "view an entry or all entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
 	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
@@ -20,6 +20,10 @@ func main() {
 	fields := flag.Bool("fields", false, "show all fields")
 	from := flag.String("from", "", "starting date. Only valied if passed with --view --remove flags and \"all\" argument. Format: YYYY-MM-DD")
 	to := flag.String("to", "", "ending date. Only valied if passed with --view --remove flag and \"all\" argument. Format: YYYY-MM-DD")
+	encrypt := flag.Bool("encrypt", false, "encrypt journal using AES")
+	decrypt := flag.Bool("decrypt", false, "decrypt using AES")
+	remove_password := flag.Bool("removepassword", false, "permanently decrypt a journal. This cannot be reversed.")
+
 	flag.Parse()
 
 	// no commands were provided and no text was written
@@ -31,11 +35,27 @@ func main() {
 
 	// vreate empty Journal
 	j := crate_journal()
+
 	// load from database
-	e := j.load()
-	if e != nil {
-		print_error(e, 3)
-		return
+	if *decrypt {
+		password, e := get_password()
+		j.Password = password
+		if e != nil {
+			print_error(e, 2)
+			return
+		}
+
+		e = j.decrypt()
+		if e != nil {
+			print_error(e, 3)
+			return
+		}
+	} else {
+		e := j.load()
+		if e != nil {
+			print_error(e, 3)
+			return
+		}
 	}
 
 	// no commands were provided but some text was recognized
@@ -120,7 +140,7 @@ func main() {
 		}
 	} else if *tags {
 		var tags map[string]int
-		tags, e = j.getAllTags()
+		tags, e := j.getAllTags()
 		if e != nil {
 			print_error(e, 1)
 		} else {
@@ -134,15 +154,33 @@ func main() {
 		} else {
 			print_fields(fields)
 		}
-	} else {
+	} else if !(*encrypt || *decrypt || *remove_password) {
 		// not a single valid option has been called
 		flag.PrintDefaults()
 		// now exit
 		return
 	}
 
-	e = j.save()
+	var e error
+	if *encrypt {
+		var password string
+		password, e = get_password()
+		j.Password = password
+		j.encrypt()
+	} else if *remove_password {
+		e = j.save()
+	} else if *decrypt {
+		j.encrypt()
+	} else {
+		e = j.save()
+		if e != nil {
+			print_error(e, 2)
+		}
+	}
+
 	if e != nil {
 		print_error(e, 2)
+		return
 	}
+
 }
