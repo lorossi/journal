@@ -6,8 +6,11 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
+	"os"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -31,15 +34,33 @@ type Journal struct {
 	time_format string
 }
 
-func crate_journal() (j Journal) {
-	j = Journal{
-		path:        "journal.json",
-		time_format: "2006-01-02 15:04:05",
-		Last_loaded: time.Now().Format(time.RFC3339),
-		Version:     "1.0.0",
+func crate_journal() (j Journal, e error) {
+	// create journal path if it does not exist
+	var journal_folder string
+	// multi os support (hopefully)
+	if runtime.GOOS == "linux" {
+		journal_folder = "/var/lib/journal"
+	} else if runtime.GOOS == "darwin" {
+		// macOS, might need testing
+		journal_folder = "~/Library/Preferences/journal"
+	} else if runtime.GOOS == "windows" {
+		journal_folder = "c://journal"
 	}
 
-	return j
+	if _, e := os.Stat(journal_folder); os.IsNotExist(e) {
+		e := os.Mkdir(journal_folder, 0777)
+		fmt.Println(e)
+		return Journal{}, errors.New("cannot create folder " + journal_folder)
+	}
+
+	j = Journal{
+		time_format: "2006-01-02 15:04:05",
+		Last_loaded: time.Now().Format(time.RFC3339),
+		Version:     "1.0.1",
+		path:        journal_folder + "/journal.json",
+	}
+
+	return j, nil
 }
 
 func read_from_file(path string) (file []byte, e error) {

@@ -42,7 +42,11 @@ func main() {
 	}
 
 	// create empty Journal
-	j := crate_journal()
+	j, e := crate_journal()
+	if e != nil {
+		print_error(e, 2)
+		return
+	}
 
 	if *version {
 		color.Set(color.FgHiGreen)
@@ -183,7 +187,6 @@ func main() {
 		return
 	}
 
-	var e error
 	if *encrypt {
 		var password string
 		password, e = get_password()
@@ -204,5 +207,4 @@ func main() {
 		print_error(e, 2)
 		return
 	}
-
 }
