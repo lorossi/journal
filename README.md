@@ -5,7 +5,7 @@
 Clone the repo and use the pre compiled binaries inside the `binaries` folder (or download the [latest release](https://github.com/lorossi/go-journal/releases/latest)).
 
 - On *Linux*, use the installer by running `sudo sh installer.sh` to move the binary inside the `PATH` folder in order to run it from everywhere.
-- On *Windows*, use the installer by running `install.bat` from the command prompt/powershell of simply double click on the file
+- On *Windows*, use the installer by running `installer.bat` from the command prompt/powershell of simply double click on the file
 - On *MacOs* may god help you because for sure I can't.
 
 Otherwise, clone the repo and build it from source.
