@@ -351,15 +351,15 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 		// to the new slice of entries
 
 		switch level {
-		case 0:
+		case 1:
 			if !same_day(e.time_obj, remove_date) {
 				clean_entries = append(clean_entries, e)
 			}
-		case 1:
+		case 2:
 			if !same_month(e.time_obj, remove_date) {
 				clean_entries = append(clean_entries, e)
 			}
-		case 2:
+		case 3:
 			if !same_year(e.time_obj, remove_date) {
 				clean_entries = append(clean_entries, e)
 			}

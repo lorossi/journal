@@ -124,7 +124,7 @@ func parse_day(entry string) (time_obj time.Time, level int) {
 		}(second_word)
 
 		// if no error has been found, create the new date with the correct hour
-		if hour_err == nil && level != -1 {
+		if hour_err == nil && level == 1 {
 			new_date := time.Date(date_obj.Year(), date_obj.Month(), date_obj.Day(), hour_obj.Hour(), hour_obj.Minute(), 0, 0, date_obj.Location())
 			return new_date, 0
 		}
