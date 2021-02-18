@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// create empty Journal
-	j, e := create_journal()
+	j, e := NewJournal()
 	if e != nil {
 		print_error(e, 2)
 		return
@@ -61,9 +61,8 @@ func main() {
 
 		if e == nil {
 			if j.Version != current_version {
-				color.Set(color.FgHiGreen)
-				fmt.Print("\tNew version available: ")
 				color.Set(color.FgHiRed)
+				fmt.Print("\tNew version available: ")
 				fmt.Print(current_version, "\n\n")
 			} else {
 				color.Set(color.FgHiGreen)
