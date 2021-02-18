@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"runtime"
 	"sort"
@@ -30,9 +31,36 @@ type Journal struct {
 	Last_loaded string  `json:"last_loaded"`
 	Created     string  `json:"created"`
 	Version     string  `json:"version"`
-	Password    string  `json:"-"`
+	Repo        string  `json:"-"`
+	password    string
 	path        string
 	time_format string
+}
+
+// setters
+func (j *Journal) setPassword(password string) {
+	j.password = password
+}
+
+// getters
+func (j *Journal) getCurrentVersion() (current_version string, e error) {
+	// set a timeout
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+	// load url
+	response, e := client.Get(j.Repo + "/releases/latest")
+	if e != nil {
+		return "", e
+	}
+	// get redirect
+	final_url := strings.Split(response.Request.URL.String(), "/")
+	if len(final_url) == 0 {
+		return "", errors.New("unable to fetch new version")
+	}
+	current_version = final_url[len(final_url)-1]
+
+	return
 }
 
 func crate_journal() (j Journal, e error) {
@@ -45,7 +73,7 @@ func crate_journal() (j Journal, e error) {
 		// macOS, might need testing
 		journal_folder = "~/Library/Preferences/journal"
 	} else if runtime.GOOS == "windows" {
-		journal_folder = "c:/journal"
+		journal_folder = os.Getenv("APPDATA") + "\\journal"
 	}
 
 	if _, e := os.Stat(journal_folder); os.IsNotExist(e) {
@@ -55,10 +83,15 @@ func crate_journal() (j Journal, e error) {
 	}
 
 	j = Journal{
-		time_format: "2006-01-02 15:04:05",
 		Last_loaded: time.Now().Format(time.RFC3339),
 		Version:     "1.1.0",
+		Repo:        "https://github.com/lorossi/go-journal",
+		time_format: "2006-01-02 15:04:05",
 		path:        journal_folder + "/journal.json",
+	}
+
+	if strings.Contains(j.Version, "b") {
+		j.path = "beta.json"
 	}
 
 	return j, nil
@@ -114,7 +147,7 @@ func (j *Journal) load() (e error) {
 	// parse JSON
 	e = json.Unmarshal(file, &j)
 	if e != nil {
-		return errors.New("cannot parse database")
+		return errors.New("cannot parse database. Is it encrypted?")
 	}
 	// calculate the time for each entry
 	for i := 0; i < len(j.Entries); i++ {
@@ -133,7 +166,7 @@ func (j *Journal) decrypt() (e error) {
 		return errors.New("cannot open encrypted database")
 	}
 
-	key := []byte(j.Password)
+	key := []byte(j.password)
 
 	c, e := aes.NewCipher(key)
 	if e != nil {
@@ -182,7 +215,7 @@ func (j *Journal) save() (e error) {
 }
 
 func (j *Journal) encrypt() (e error) {
-	key := []byte(j.Password)
+	key := []byte(j.password)
 
 	JSON_bytes, e := json.MarshalIndent(j, "", "  ")
 	if e != nil {

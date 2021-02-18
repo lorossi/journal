@@ -12,8 +12,8 @@ import (
 	"golang.org/x/term"
 )
 
-func get_password() (password string, e error) {
-	fmt.Print("Password: ")
+func get_password(prompt string) (password string, e error) {
+	fmt.Print(prompt, " ")
 	bytepw, e := term.ReadPassword(int(os.Stdin.Fd()))
 	if e != nil {
 		return "", errors.New("cannot load password")
@@ -260,4 +260,5 @@ func print_error(e error, level int8) {
 		color.Set(color.FgHiWhite)
 	}
 	fmt.Println(e)
+	color.Unset()
 }

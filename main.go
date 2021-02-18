@@ -50,16 +50,30 @@ func main() {
 	if *version {
 		color.Set(color.FgHiGreen)
 		fmt.Print("\n\tJournal Version ")
-		color.Set(color.FgHiMagenta)
-		fmt.Print(j.Version, "\n\n")
+		color.Set(color.FgHiBlue)
+		fmt.Print(j.Version, "\n")
+		color.Set(color.FgHiGreen)
+		fmt.Print("\tGitHub repo: ")
+		color.Set(color.FgHiBlue)
+		fmt.Print(j.Repo, "\n")
+
+		current_version, e := j.getCurrentVersion()
+		if e == nil && j.Version != current_version {
+			color.Set(color.FgHiGreen)
+			fmt.Print("\tNew version available: ")
+			color.Set(color.FgHiRed)
+			fmt.Print(current_version, "\n\n")
+		} else {
+			fmt.Print("\n")
+		}
 		color.Unset()
 		return
 	}
 
 	// load from database
 	if *decrypt {
-		password, e := get_password()
-		j.Password = password
+		password, e := get_password("Decryption password:")
+		j.setPassword(password)
 		if e != nil {
 			print_error(e, 2)
 			return
@@ -189,9 +203,14 @@ func main() {
 
 	if *encrypt {
 		var password string
-		password, e = get_password()
-		j.Password = password
-		j.encrypt()
+		password, e = get_password("Encryption password:")
+		if confirm_password, _ := get_password("Confirm password:"); confirm_password != password {
+			j.save()
+			print_error(errors.New("the two passwords don't match. Saving in plaintext,"), 2)
+		} else {
+			j.setPassword(password)
+			j.encrypt()
+		}
 	} else if *remove_password {
 		e = j.save()
 	} else if *decrypt {

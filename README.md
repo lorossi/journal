@@ -5,7 +5,8 @@
 Clone the repo and use the pre compiled binaries inside the `binaries` folder (or download the [latest release](https://github.com/lorossi/go-journal/releases/latest)).
 
 - On *Linux*, use the installer by running `sudo sh installer.sh` to move the binary inside the `PATH` folder in order to run it from everywhere.
-- On *Windows*, open the command prompt and navigate to where the executable resides.
+- On *Windows*, use the installer by running `install.bat` from the command prompt/powershell of simply double click on the file
+- On *MacOs* may god help you because for sure I can't.
 
 Otherwise, clone the repo and build it from source.
 
@@ -75,11 +76,11 @@ Set a different time (24 hours format) than now for an entry:
 ## View entry (or multiple entries)
 View an entry for an arbitrary date:
 
-`journal --view 2020-02-15`
+`journal --show 2020-02-15`
 
 View all entries from one month or from one year:
 
-`journal --view 2020-01` `journal --view 2020`
+`journal --show 2020-01` `journal --show 2020`
 
 View all entries:
 
@@ -161,6 +162,8 @@ Get all used fields and their relative values:
 
 ## Password protection
 The program supports password protection with the AES Encryption algorithm.
+
+While decrypted, the database **will never** be stored in plaintext on your pc.
 
 ### Encryption
 Encrypt a clear database by using the flag `--encrypt`. You will be asked for a password. **Save it** because it won't be stored and if you lose it there's no way of unlocking your journal again.
