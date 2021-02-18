@@ -200,6 +200,6 @@ The output can be formatted either in JSON or plain text by using the correct fl
 Use the flag `-h` or `--help` to get a list of all the available options.
 
 # Credits
-Thanks to [faith](github.com/fatih) for his [color](github.com/fatih/color) package.
+Thanks to [faith](https://www.github.com/fatih) for his [color](https://www.github.com/fatih/color) package.
 
 This project is distributed under CC 4.0 License.
