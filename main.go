@@ -58,14 +58,21 @@ func main() {
 		fmt.Print(j.Repo, "\n")
 
 		current_version, e := j.getCurrentVersion()
-		if e == nil && j.Version != current_version {
-			color.Set(color.FgHiGreen)
-			fmt.Print("\tNew version available: ")
-			color.Set(color.FgHiRed)
-			fmt.Print(current_version, "\n\n")
+
+		if e == nil {
+			if j.Version != current_version {
+				color.Set(color.FgHiGreen)
+				fmt.Print("\tNew version available: ")
+				color.Set(color.FgHiRed)
+				fmt.Print(current_version, "\n\n")
+			} else {
+				color.Set(color.FgHiGreen)
+				fmt.Print("\tYou are running the most recent version\n\n")
+			}
 		} else {
 			fmt.Print("\n")
 		}
+
 		color.Unset()
 		return
 	}

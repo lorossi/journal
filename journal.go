@@ -58,9 +58,12 @@ func (j *Journal) getCurrentVersion() (current_version string, e error) {
 	if len(final_url) == 0 {
 		return "", errors.New("unable to fetch new version")
 	}
+	// get the version tag
 	current_version = final_url[len(final_url)-1]
+	// remove the v
+	current_version = current_version[1:]
 
-	return
+	return current_version, e
 }
 
 func crate_journal() (j Journal, e error) {
