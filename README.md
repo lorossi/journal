@@ -1,4 +1,6 @@
 # Journal
+https://img.shields.io/github/repo-size/lorossi/go-journal
+
 *A simple CLI journal made in Go*
 
 ## Installation
