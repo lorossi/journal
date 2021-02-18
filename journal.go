@@ -66,7 +66,7 @@ func (j *Journal) getCurrentVersion() (current_version string, e error) {
 	return current_version, e
 }
 
-func crate_journal() (j Journal, e error) {
+func create_journal() (j Journal, e error) {
 	// create journal path if it does not exist
 	var journal_folder string
 	// multi os support (hopefully)
@@ -382,19 +382,20 @@ func (j *Journal) showEntries(timestamp string) (entries []Entry, e error) {
 
 	entries = make([]Entry, 0)
 	get_date, level = parse_day(timestamp)
+	fmt.Println(get_date, level)
 
 	// loop throught every entry and look for one with the desired day
 	for _, e := range j.Entries {
 		switch level {
-		case 0:
+		case 1:
 			if same_day(e.time_obj, get_date) {
 				entries = append(entries, e)
 			}
-		case 1:
+		case 2:
 			if same_month(e.time_obj, get_date) {
 				entries = append(entries, e)
 			}
-		case 2:
+		case 3:
 			if same_year(e.time_obj, get_date) {
 				entries = append(entries, e)
 			}

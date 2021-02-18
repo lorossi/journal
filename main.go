@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// create empty Journal
-	j, e := crate_journal()
+	j, e := create_journal()
 	if e != nil {
 		print_error(e, 2)
 		return
