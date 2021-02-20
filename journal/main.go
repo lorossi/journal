@@ -21,15 +21,15 @@ func main() {
 	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
-	print_plaintext := flag.Bool("plaintext", false, "show as plaintext")
-	print_json := flag.Bool("json", false, "show as json")
+	printPlaintext := flag.Bool("plaintext", false, "show as plaintext")
+	printJSON := flag.Bool("json", false, "show as json")
 	tags := flag.Bool("tags", false, "show all tags")
 	fields := flag.Bool("fields", false, "show all fields")
 	from := flag.String("from", "", "starting date. Only valied if passed with --show --remove flags and \"all\" argument. Format: YYYY-MM-DD")
 	to := flag.String("to", "", "ending date. Only valied if passed with --show --remove flag and \"all\" argument. Format: YYYY-MM-DD")
 	encrypt := flag.Bool("encrypt", false, "encrypt journal using AES")
 	decrypt := flag.Bool("decrypt", false, "decrypt using AES")
-	remove_password := flag.Bool("removepassword", false, "permanently decrypt a journal. This cannot be reversed.")
+	removePassword := flag.Bool("removepassword", false, "permanently decrypt a journal. This cannot be reversed.")
 
 	flag.Parse()
 
@@ -43,7 +43,7 @@ func main() {
 	// create empty Journal
 	j, e := NewJournal()
 	if e != nil {
-		print_error(e, 2)
+		printError(e, 2)
 		return
 	}
 
@@ -57,13 +57,20 @@ func main() {
 		color.Set(color.FgHiBlue)
 		fmt.Print(j.Repo, "\n")
 
-		current_version, e := j.getCurrentVersion()
+		currentVersion, e := j.getCurrentVersion()
 
 		if e == nil {
+<<<<<<< Updated upstream:main.go
 			if j.Version != current_version {
 				color.Set(color.FgHiRed)
 				fmt.Print("\tNew version available: ")
 				fmt.Print(current_version, "\n\n")
+=======
+			if j.Version != currentVersion {
+				color.Set(color.FgHiRed)
+				fmt.Print("\tNew version available: ")
+				fmt.Print(currentVersion, "\n\n")
+>>>>>>> Stashed changes:journal/main.go
 			} else {
 				color.Set(color.FgHiGreen)
 				fmt.Print("\tYou are running the most recent version\n\n")
@@ -78,22 +85,22 @@ func main() {
 
 	// load from database
 	if *decrypt {
-		password, e := get_password("Decryption password:")
+		password, e := getPassword("Decryption password:")
 		j.setPassword(password)
 		if e != nil {
-			print_error(e, 2)
+			printError(e, 2)
 			return
 		}
 
 		e = j.decrypt()
 		if e != nil {
-			print_error(e, 3)
+			printError(e, 3)
 			return
 		}
 	} else {
 		e := j.load()
 		if e != nil {
-			print_error(e, 3)
+			printError(e, 3)
 			return
 		}
 	}
@@ -116,13 +123,13 @@ func main() {
 			} else if *from == "" && *to == "" {
 				j.removeAllEntries()
 			} else {
-				print_error(errors.New("wrong parameter with remove flag"), 2)
+				printError(errors.New("wrong parameter with remove flag"), 2)
 			}
 		} else {
 			e = j.removeEntry(*remove)
 		}
 		if e != nil {
-			print_error(e, 2)
+			printError(e, 2)
 		}
 	} else if *show != "" {
 		// get entry by date
@@ -130,25 +137,25 @@ func main() {
 			// check if parameter is "all"
 			entries, e := j.getAllEntries()
 			if e != nil {
-				print_error(e, 1)
+				printError(e, 1)
 			} else {
-				print_entries(entries, *print_plaintext, *print_json)
+				printEntries(entries, *printPlaintext, *printJSON)
 			}
 		} else if *from != "" && *to != "" {
 			// get entries between dates
 			entries, e := j.getEntriesBetween(*from, *to)
 			if e != nil {
-				print_error(e, 1)
+				printError(e, 1)
 			} else {
-				print_entries(entries, *print_plaintext, *print_json)
+				printEntries(entries, *printPlaintext, *printJSON)
 			}
 		} else {
 			// check if the parameter is some kind of date
 			entries, e := j.showEntries(*show)
 			if e != nil {
-				print_error(e, 1)
+				printError(e, 1)
 			} else {
-				print_entries(entries, *print_plaintext, *print_json)
+				printEntries(entries, *printPlaintext, *printJSON)
 			}
 		}
 	} else if *searchkeywords != "" {
@@ -158,9 +165,9 @@ func main() {
 		keywords = append(keywords, flag.Args()...)
 		entries, e := j.searchKeywords(keywords)
 		if e != nil {
-			print_error(e, 1)
+			printError(e, 1)
 		} else {
-			print_entries(entries, *print_plaintext, *print_json)
+			printEntries(entries, *printPlaintext, *printJSON)
 		}
 	} else if *searchtags != "" {
 		var tags []string
@@ -169,9 +176,9 @@ func main() {
 		tags = append(tags, flag.Args()...)
 		entries, e := j.searchTags(tags)
 		if e != nil {
-			print_error(e, 1)
+			printError(e, 1)
 		} else {
-			print_entries(entries, *print_plaintext, *print_json)
+			printEntries(entries, *printPlaintext, *printJSON)
 		}
 	} else if *searchfields != "" {
 		var keys []string
@@ -180,27 +187,27 @@ func main() {
 		keys = append(keys, flag.Args()...)
 		entries, e := j.searchFields(keys)
 		if e != nil {
-			print_error(e, 1)
+			printError(e, 1)
 		} else {
-			print_entries(entries, *print_plaintext, *print_json)
+			printEntries(entries, *printPlaintext, *printJSON)
 		}
 	} else if *tags {
 		var tags map[string]int
 		tags, e := j.getAllTags()
 		if e != nil {
-			print_error(e, 1)
+			printError(e, 1)
 		} else {
-			print_tags(tags)
+			printTags(tags)
 		}
 	} else if *fields {
 		var fields []map[string]string
 		fields, e := j.getAllFields()
 		if e != nil {
-			print_error(e, 1)
+			printError(e, 1)
 		} else {
-			print_fields(fields)
+			printFields(fields)
 		}
-	} else if !(*encrypt || *decrypt || *remove_password) {
+	} else if !(*encrypt || *decrypt || *removePassword) {
 		// not a single valid option has been called
 		flag.PrintDefaults()
 		// now exit
@@ -209,27 +216,27 @@ func main() {
 
 	if *encrypt {
 		var password string
-		password, e = get_password("Encryption password:")
-		if confirm_password, _ := get_password("Confirm password:"); confirm_password != password {
+		password, e = getPassword("Encryption password:")
+		if confirmPassword, _ := getPassword("Confirm password:"); confirmPassword != password {
 			j.save()
-			print_error(errors.New("the two passwords don't match. Saving in plaintext,"), 2)
+			printError(errors.New("the two passwords don't match. Saving in plaintext,"), 2)
 		} else {
 			j.setPassword(password)
 			j.encrypt()
 		}
-	} else if *remove_password {
+	} else if *removePassword {
 		e = j.save()
 	} else if *decrypt {
 		j.encrypt()
 	} else {
 		e = j.save()
 		if e != nil {
-			print_error(e, 2)
+			printError(e, 2)
 		}
 	}
 
 	if e != nil {
-		print_error(e, 2)
+		printError(e, 2)
 		return
 	}
 }

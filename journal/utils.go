@@ -12,7 +12,7 @@ import (
 	"golang.org/x/term"
 )
 
-func get_password(prompt string) (password string, e error) {
+func getPassword(prompt string) (password string, e error) {
 	fmt.Print(prompt, " ")
 	bytepw, e := term.ReadPassword(int(os.Stdin.Fd()))
 	if e != nil {
@@ -33,7 +33,7 @@ func get_password(prompt string) (password string, e error) {
 	return string(bytepw), e
 }
 
-func find_delimiter(entry string, delimiters []string) string {
+func findDelimiter(entry string, delimiters []string) string {
 	for _, e := range entry {
 		for _, d := range delimiters {
 			if d == string(e) {
@@ -45,35 +45,36 @@ func find_delimiter(entry string, delimiters []string) string {
 	return ""
 }
 
-func remove_multiple_spaces(entry string) string {
+func removeMultipleSpaces(entry string) string {
 	for strings.Contains(entry, "  ") {
 		entry = strings.ReplaceAll(entry, "  ", " ")
 	}
 	return entry
 }
 
-func parse_entry(entry, time_format string) (string, time.Time) {
-	parsed_day, level := parse_day(entry)
+func parseEntry(entry, timeFormat string) (string, time.Time) {
+	parsedDay, level := parseDay(entry)
 	if level == 0 {
 		words := strings.Split(entry, " ")
-		return strings.Join(words[2:], " "), parsed_day
+		return strings.Join(words[2:], " "), parsedDay
 	} else if level == 1 {
 		words := strings.Split(entry, " ")
-		return strings.Join(words[1:], " "), parsed_day
+		return strings.Join(words[1:], " "), parsedDay
 	} else {
 		return entry, time.Now()
 	}
 }
 
-func parse_day(entry string) (time_obj time.Time, level int) {
-	var date_obj, hour_obj time.Time
-	var hour_err error
+func parseDay(entry string) (timeObj time.Time, level int) {
+	var dateObj, hourObj time.Time
+	var hourErr error
 
 	words := strings.Split(entry, " ")
 
 	// the first word should contain the date
-	first_word := strings.Split(entry, " ")[0]
-	date_obj, level = func(date_str string) (time.Time, int) {
+	firstWord := strings.Split(entry, " ")[0]
+
+	dateObj, level = func(date_str string) (time.Time, int) {
 		switch date_str {
 		case "yesterday":
 			// the first word was yesterday. Return today's date MINUS one day
@@ -88,20 +89,20 @@ func parse_day(entry string) (time_obj time.Time, level int) {
 			// try to parse the date. If it work, remove the first word.
 			// If it doesn't work, the date is today (the first word
 			// does not indicate the date)
-			time_templates := [...]string{"2006-01-02", "2006-01-02", "2006-01", "2006"}
+			timeTemplates := [...]string{"2006-01-02", "2006-01", "2006"}
 
-			for level, template := range time_templates {
-				time_obj, e := time.Parse(template, first_word)
+			for level, template := range timeTemplates {
+				timeObj, e := time.Parse(template, firstWord)
 				if e == nil {
-					return time_obj, level + 1
+					return timeObj, level + 1
 				}
 			}
 
 			// now try matching against weekday
-			_, e := time.Parse("Monday", first_word)
+			_, e := time.Parse("Monday", firstWord)
 			if e == nil {
 				now := time.Now()
-				for !strings.EqualFold(first_word, now.Weekday().String()) {
+				for !strings.EqualFold(firstWord, now.Weekday().String()) {
 					now = now.AddDate(0, 0, -1)
 				}
 				return now, 1
@@ -109,48 +110,54 @@ func parse_day(entry string) (time_obj time.Time, level int) {
 
 			return time.Time{}, -1
 		}
-	}(first_word)
+	}(firstWord)
 
 	// if there's a second word, check if it contains the hour
 	if len(words) > 1 {
-		second_word := words[1]
+		secondWord := words[1]
 
-		hour_obj, hour_err = func(hour_str string) (time.Time, error) {
-			time_obj, e := time.Parse("15.04", hour_str)
+		hourObj, hourErr = func(hour_str string) (time.Time, error) {
+			timeObj, e := time.Parse("15.04", hour_str)
 			if e == nil {
-				return time_obj, e
+				return timeObj, e
 			}
 			return time.Time{}, e
-		}(second_word)
+		}(secondWord)
 
 		// if no error has been found, create the new date with the correct hour
-		if hour_err == nil && level == 1 {
+<<<<<<< Updated upstream:utils.go
+		if hour_err == nil && level != -1 {
 			new_date := time.Date(date_obj.Year(), date_obj.Month(), date_obj.Day(), hour_obj.Hour(), hour_obj.Minute(), 0, 0, date_obj.Location())
 			return new_date, 0
+=======
+		if hourErr == nil && level == 1 {
+			newDate := time.Date(dateObj.Year(), dateObj.Month(), dateObj.Day(), hourObj.Hour(), hourObj.Minute(), 0, 0, dateObj.Location())
+			return newDate, 0
+>>>>>>> Stashed changes:journal/utils.go
 		}
 	}
 
-	return date_obj, level
+	return dateObj, level
 }
 
-func same_day(date_1, date_2 time.Time) bool {
-	return date_1.Format("20060102") == date_2.Format("20060102")
+func sameDay(date1, date2 time.Time) bool {
+	return date1.Format("20060102") == date2.Format("20060102")
 }
 
-func same_month(date_1, date_2 time.Time) bool {
-	return date_1.Month() == date_2.Month()
+func sameMonth(date1, date2 time.Time) bool {
+	return date1.Month() == date2.Month()
 }
 
-func same_year(date_1, date_2 time.Time) bool {
-	return date_1.Year() == date_2.Year()
+func sameYear(date1, date2 time.Time) bool {
+	return date1.Year() == date2.Year()
 }
 
-func date_between(current, start, end time.Time) bool {
+func dateBetween(current, start, end time.Time) bool {
 	return current.After(start) && current.Before(end)
 }
 
-func print_entries(entries []Entry, print_plaintext bool, print_json bool) {
-	if print_plaintext {
+func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
+	if printPlaintext {
 		for _, entry := range entries {
 			// print date
 			fmt.Print("[", entry.Timestamp, "] ")
@@ -171,9 +178,9 @@ func print_entries(entries []Entry, print_plaintext bool, print_json bool) {
 			// end line
 			fmt.Println()
 		}
-	} else if print_json {
-		JSON_bytes, _ := json.MarshalIndent(entries, "", "  ")
-		fmt.Println(string(JSON_bytes))
+	} else if printJSON {
+		JSONBytes, _ := json.MarshalIndent(entries, "", "  ")
+		fmt.Println(string(JSONBytes))
 	} else {
 		for _, entry := range entries {
 			// print timestamp
@@ -219,7 +226,7 @@ func print_entries(entries []Entry, print_plaintext bool, print_json bool) {
 	}
 }
 
-func print_tags(tags map[string]int) {
+func printTags(tags map[string]int) {
 	for k, v := range tags {
 		// print key
 		color.Set(color.FgHiMagenta)
@@ -232,7 +239,7 @@ func print_tags(tags map[string]int) {
 	}
 }
 
-func print_fields(fields []map[string]string) {
+func printFields(fields []map[string]string) {
 	for _, field := range fields {
 		for k, v := range field {
 			// print key
@@ -247,7 +254,7 @@ func print_fields(fields []map[string]string) {
 	}
 }
 
-func print_error(e error, level int8) {
+func printError(e error, level int8) {
 	switch level {
 	case 0:
 		color.Set(color.FgHiGreen)
