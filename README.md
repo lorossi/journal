@@ -2,7 +2,6 @@
 ![](https://img.shields.io/github/repo-size/lorossi/go-journal?style=flat-square)
 ![](https://img.shields.io/maintenance/yes/2021?style=flat-square)
 ![](https://img.shields.io/github/last-commit/lorossi/go-journal/main?style=flat-square)
-![](https://img.shields.io/github/go-mod/go-version/lorossi/go-journal?style=flat-square)
 
 *A simple CLI journal made in Go*
 
