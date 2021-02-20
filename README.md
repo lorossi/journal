@@ -13,7 +13,7 @@ Clone the repo and use the pre compiled binaries inside the `binaries` folder (o
 - On *Windows*, use the installer by running `installer.bat` from the command prompt/powershell of simply double click on the file
 - On *MacOs* may god help you because for sure I can't.
 
-Otherwise, clone the repo and build it from source.
+Otherwise, clone the repo and build it from source. Feel free to use my `build.py` script that will take care of all the steps needed.
 
 ## Goals
 I want to implement a simple CLI (command line interface) journal in Go, as a way to excercise and learn it.
