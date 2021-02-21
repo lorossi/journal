@@ -8,7 +8,7 @@ import zipfile
 import subprocess
 
 
-def build(binaries_folder="binaries/", settings_file="settings.json"):
+def build(binaries_folder="binaries/", settings_file="buildsettings.json"):
 
     with open(settings_file) as f:
         settings = json.load(f)

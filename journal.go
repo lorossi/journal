@@ -68,12 +68,8 @@ func (j *Journal) getCurrentVersion() (currentVersion string, e error) {
 	return currentVersion, e
 }
 
-<<<<<<< Updated upstream:journal.go
-func create_journal() (j Journal, e error) {
-=======
-// NewJournal returns a new empty journal. Also initializes the folder
+// NewJournal returns an empty journal object
 func NewJournal() (j Journal, e error) {
->>>>>>> Stashed changes:journal/journal.go
 	// create journal path if it does not exist
 	var journalFolder string
 	// multi os support (hopefully)
@@ -94,7 +90,7 @@ func NewJournal() (j Journal, e error) {
 
 	j = Journal{
 		LastLoaded: time.Now().Format(time.RFC3339),
-		Version:    "1.1.0",
+		Version:    "1.1.1",
 		Repo:       "https://github.com/lorossi/go-journal",
 		timeFormat: "2006-01-02 15:04:05",
 		path:       journalFolder + "/journal.json",
@@ -360,19 +356,6 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 		// to the new slice of entries
 
 		switch level {
-<<<<<<< Updated upstream:journal.go
-		case 0:
-			if !same_day(e.time_obj, remove_date) {
-				clean_entries = append(clean_entries, e)
-			}
-		case 1:
-			if !same_month(e.time_obj, remove_date) {
-				clean_entries = append(clean_entries, e)
-			}
-		case 2:
-			if !same_year(e.time_obj, remove_date) {
-				clean_entries = append(clean_entries, e)
-=======
 		case 1:
 			if !sameDay(e.timeObj, removeDate) {
 				cleanEntries = append(cleanEntries, e)
@@ -384,7 +367,6 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 		case 3:
 			if !sameYear(e.timeObj, removeDate) {
 				cleanEntries = append(cleanEntries, e)
->>>>>>> Stashed changes:journal/journal.go
 			}
 		}
 	}
@@ -404,12 +386,8 @@ func (j *Journal) showEntries(timestamp string) (entries []Entry, e error) {
 	var level int
 
 	entries = make([]Entry, 0)
-<<<<<<< Updated upstream:journal.go
-	get_date, level = parse_day(timestamp)
-	fmt.Println(get_date, level)
-=======
 	getDate, level = parseDay(timestamp)
->>>>>>> Stashed changes:journal/journal.go
+	fmt.Println(getDate, level)
 
 	// loop throught every entry and look for one with the desired day
 	for _, e := range j.Entries {

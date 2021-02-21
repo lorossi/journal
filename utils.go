@@ -125,15 +125,9 @@ func parseDay(entry string) (timeObj time.Time, level int) {
 		}(secondWord)
 
 		// if no error has been found, create the new date with the correct hour
-<<<<<<< Updated upstream:utils.go
-		if hour_err == nil && level != -1 {
-			new_date := time.Date(date_obj.Year(), date_obj.Month(), date_obj.Day(), hour_obj.Hour(), hour_obj.Minute(), 0, 0, date_obj.Location())
-			return new_date, 0
-=======
 		if hourErr == nil && level == 1 {
 			newDate := time.Date(dateObj.Year(), dateObj.Month(), dateObj.Day(), hourObj.Hour(), hourObj.Minute(), 0, 0, dateObj.Location())
 			return newDate, 0
->>>>>>> Stashed changes:journal/utils.go
 		}
 	}
 

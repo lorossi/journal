@@ -60,17 +60,10 @@ func main() {
 		currentVersion, e := j.getCurrentVersion()
 
 		if e == nil {
-<<<<<<< Updated upstream:main.go
-			if j.Version != current_version {
-				color.Set(color.FgHiRed)
-				fmt.Print("\tNew version available: ")
-				fmt.Print(current_version, "\n\n")
-=======
 			if j.Version != currentVersion {
 				color.Set(color.FgHiRed)
 				fmt.Print("\tNew version available: ")
 				fmt.Print(currentVersion, "\n\n")
->>>>>>> Stashed changes:journal/main.go
 			} else {
 				color.Set(color.FgHiGreen)
 				fmt.Print("\tYou are running the most recent version\n\n")
