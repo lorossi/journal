@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// create empty Journal
-	j, e := create_journal()
+	j, e := NewJournal()
 	if e != nil {
 		printError(e, 2)
 		return
@@ -60,18 +60,10 @@ func main() {
 		currentVersion, e := j.getCurrentVersion()
 
 		if e == nil {
-<<<<<<< Updated upstream:main.go
-			if j.Version != current_version {
-				color.Set(color.FgHiGreen)
-				fmt.Print("\tNew version available: ")
-				color.Set(color.FgHiRed)
-				fmt.Print(current_version, "\n\n")
-=======
 			if j.Version != currentVersion {
 				color.Set(color.FgHiRed)
 				fmt.Print("\tNew version available: ")
 				fmt.Print(currentVersion, "\n\n")
->>>>>>> Stashed changes:journal/main.go
 			} else {
 				color.Set(color.FgHiGreen)
 				fmt.Print("\tYou are running the most recent version\n\n")
