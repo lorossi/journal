@@ -3,7 +3,7 @@
 ![](https://img.shields.io/maintenance/yes/2021?style=flat-square)
 ![](https://img.shields.io/github/last-commit/lorossi/go-journal/main?style=flat-square)
 
-*A simple CLI journal made in Go*
+### *A simple CLI journal made in Go*
 
 ## Installation
 Clone the repo and use the pre compiled binaries inside the `binaries` folder (or download the [latest release](https://github.com/lorossi/go-journal/releases/latest)).
