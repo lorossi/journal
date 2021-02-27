@@ -39,13 +39,13 @@ type Journal struct {
 	timeFormat string
 }
 
-// setters
-func (j *Journal) setPassword(password string) {
+//SetPassword -> sets new database password
+func (j *Journal) SetPassword(password string) {
 	j.password = password
 }
 
-// getters
-func (j *Journal) getCurrentVersion() (currentVersion string, e error) {
+//GetNewestVersion -> gets the current version from GitHub
+func (j *Journal) GetNewestVersion() (newestVersion string, e error) {
 	// set a timeout
 	client := &http.Client{
 		Timeout: 5 * time.Second,
@@ -61,11 +61,9 @@ func (j *Journal) getCurrentVersion() (currentVersion string, e error) {
 		return "", errors.New("unable to fetch new version")
 	}
 	// get the version tag
-	currentVersion = finalURL[len(finalURL)-1]
-	// remove the v
-	currentVersion = currentVersion[1:]
+	newestVersion = finalURL[len(finalURL)-1]
 
-	return currentVersion, e
+	return newestVersion, e
 }
 
 // NewJournal returns an empty journal object
@@ -90,7 +88,7 @@ func NewJournal() (j Journal, e error) {
 
 	j = Journal{
 		LastLoaded: time.Now().Format(time.RFC3339),
-		Version:    "1.1.1",
+		Version:    "1.1.2",
 		Repo:       "https://github.com/lorossi/go-journal",
 		timeFormat: "2006-01-02 15:04:05",
 		path:       journalFolder + "/journal.json",
@@ -267,7 +265,7 @@ func (j *Journal) createEntry(entry string) {
 	var newEntry Entry
 
 	// find the submitted date and the entry without the (eventual) date
-	content, newDate = parseEntry(entry, j.timeFormat)
+	content, newDate = parseEntry(entry)
 	if content == "" {
 		return
 	}
@@ -347,8 +345,6 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 		return errors.New("date was not provided correctly")
 	}
 
-	fmt.Println(removeDate, level)
-
 	// init an empty slice of entries
 	cleanEntries = make([]Entry, 0)
 	for _, e := range j.Entries {
@@ -356,6 +352,8 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 		// to the new slice of entries
 
 		switch level {
+		case 0:
+			return errors.New("don't provide date with this flag")
 		case 1:
 			if !sameDay(e.timeObj, removeDate) {
 				cleanEntries = append(cleanEntries, e)
@@ -384,14 +382,14 @@ func (j *Journal) removeEntry(timestamp string) (e error) {
 func (j *Journal) showEntries(timestamp string) (entries []Entry, e error) {
 	var getDate time.Time
 	var level int
-
 	entries = make([]Entry, 0)
 	getDate, level = parseDay(timestamp)
-	fmt.Println(getDate, level)
 
 	// loop throught every entry and look for one with the desired day
 	for _, e := range j.Entries {
 		switch level {
+		case 0:
+			return entries, errors.New("don't provide date with this flag")
 		case 1:
 			if sameDay(e.timeObj, getDate) {
 				entries = append(entries, e)

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fatih/color"
+	"github.com/lorossi/colorize"
 )
 
 func main() {
@@ -17,19 +17,19 @@ func main() {
 	version := flag.Bool("version", false, "show current version")
 	add := flag.String("add", "", "add an entry to the journal. Date format: today, yesterday, weekday (monday-sunday) YYYY-MM-DD, YYYY-MM-DD. You can also set a time in format hh.mm")
 	remove := flag.String("remove", "", "remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
-	show := flag.String("show", "", "show an entry or all entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
-	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
+	show := flag.String("show", "", "show entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
+	searchkeywords := flag.String("search", "", "search entries by text (both in title and content)")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
 	printPlaintext := flag.Bool("plaintext", false, "show as plaintext")
 	printJSON := flag.Bool("json", false, "show as json")
-	tags := flag.Bool("tags", false, "show all tags")
-	fields := flag.Bool("fields", false, "show all fields")
-	from := flag.String("from", "", "starting date. Only valied if passed with --show --remove flags and \"all\" argument. Format: YYYY-MM-DD")
-	to := flag.String("to", "", "ending date. Only valied if passed with --show --remove flag and \"all\" argument. Format: YYYY-MM-DD")
+	tags := flag.Bool("tags", false, "show all used tags")
+	fields := flag.Bool("fields", false, "show all used fields")
+	from := flag.String("from", "", "starting date. Only valied if passed with --show, --search or --remove flags and \"all\" argument. Format: YYYY-MM-DD")
+	to := flag.String("to", "", "ending date. Only valied if passed with --show, --search or --remove flag and \"all\" argument. Format: YYYY-MM-DD")
 	encrypt := flag.Bool("encrypt", false, "encrypt journal using AES")
 	decrypt := flag.Bool("decrypt", false, "decrypt using AES")
-	removePassword := flag.Bool("removepassword", false, "permanently decrypt a journal. This cannot be reversed.")
+	removePassword := flag.Bool("removepassword", false, "permanently decrypt a journal by removing its password")
 
 	flag.Parse()
 
@@ -48,38 +48,25 @@ func main() {
 	}
 
 	if *version {
-		color.Set(color.FgHiGreen)
-		fmt.Print("\n\tJournal Version ")
-		color.Set(color.FgHiBlue)
-		fmt.Print(j.Version, "\n")
-		color.Set(color.FgHiGreen)
-		fmt.Print("\tGitHub repo: ")
-		color.Set(color.FgHiBlue)
-		fmt.Print(j.Repo, "\n")
+		version := j.Version
 
-		currentVersion, e := j.getCurrentVersion()
+		printVersion(version, j.Repo)
+		newestVersion, e := j.GetNewestVersion()
 
-		if e == nil {
-			if j.Version != currentVersion {
-				color.Set(color.FgHiRed)
-				fmt.Print("\tNew version available: ")
-				fmt.Print(currentVersion, "\n\n")
-			} else {
-				color.Set(color.FgHiGreen)
-				fmt.Print("\tYou are running the most recent version\n\n")
-			}
+		if e != nil {
+			printError(errors.New("\tCannot check for new version. Check manually on the GitHub repo"), 1)
+			fmt.Println()
 		} else {
-			fmt.Print("\n")
+			printUpdate(version, newestVersion)
 		}
 
-		color.Unset()
 		return
 	}
 
 	// load from database
 	if *decrypt {
 		password, e := getPassword("Decryption password:")
-		j.setPassword(password)
+		j.SetPassword(password)
 		if e != nil {
 			printError(e, 2)
 			return
@@ -90,6 +77,10 @@ func main() {
 			printError(e, 3)
 			return
 		}
+
+		colorize.SetStyle(colorize.FgBrightGreen)
+		fmt.Println("Database decrypted")
+		colorize.ResetStyle()
 	} else {
 		e := j.load()
 		if e != nil {
@@ -209,16 +200,22 @@ func main() {
 
 	if *encrypt {
 		var password string
-		password, e = getPassword("Encryption password:")
+		password, e = getPassword("New password:")
 		if confirmPassword, _ := getPassword("Confirm password:"); confirmPassword != password {
 			j.save()
 			printError(errors.New("the two passwords don't match. Saving in plaintext,"), 2)
 		} else {
-			j.setPassword(password)
+			j.SetPassword(password)
 			j.encrypt()
+			colorize.SetStyle(colorize.FgBrightGreen)
+			fmt.Println("Databae encrypted")
+			colorize.ResetStyle()
 		}
 	} else if *removePassword {
 		e = j.save()
+		colorize.SetStyle(colorize.FgBrightGreen)
+		fmt.Println("Databae permanently decrypted")
+		colorize.ResetStyle()
 	} else if *decrypt {
 		j.encrypt()
 	} else {

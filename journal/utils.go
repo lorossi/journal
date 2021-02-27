@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
+	"github.com/lorossi/colorize"
 	"golang.org/x/term"
 )
 
+// gets password from terminal, hiding the output
 func getPassword(prompt string) (password string, e error) {
 	fmt.Print(prompt, " ")
 	bytepw, e := term.ReadPassword(int(os.Stdin.Fd()))
@@ -33,6 +34,7 @@ func getPassword(prompt string) (password string, e error) {
 	return string(bytepw), e
 }
 
+// finds the first matching delimiter in list
 func findDelimiter(entry string, delimiters []string) string {
 	for _, e := range entry {
 		for _, d := range delimiters {
@@ -45,6 +47,7 @@ func findDelimiter(entry string, delimiters []string) string {
 	return ""
 }
 
+// removes multiple spaces from string
 func removeMultipleSpaces(entry string) string {
 	for strings.Contains(entry, "  ") {
 		entry = strings.ReplaceAll(entry, "  ", " ")
@@ -52,7 +55,8 @@ func removeMultipleSpaces(entry string) string {
 	return entry
 }
 
-func parseEntry(entry, timeFormat string) (string, time.Time) {
+// parse entry (title and date)
+func parseEntry(entry string) (string, time.Time) {
 	parsedDay, level := parseDay(entry)
 	if level == 0 {
 		words := strings.Split(entry, " ")
@@ -65,6 +69,8 @@ func parseEntry(entry, timeFormat string) (string, time.Time) {
 	}
 }
 
+// loads day from string
+// resoulution: level 0 -> minute, level 1 -> day, level 2 -> month, level 3 -> year, level -1 -> undefined
 func parseDay(entry string) (timeObj time.Time, level int) {
 	var dateObj, hourObj time.Time
 	var hourErr error
@@ -94,7 +100,7 @@ func parseDay(entry string) (timeObj time.Time, level int) {
 			for level, template := range timeTemplates {
 				timeObj, e := time.Parse(template, firstWord)
 				if e == nil {
-					return timeObj, level + 1
+					return timeObj, level
 				}
 			}
 
@@ -125,7 +131,7 @@ func parseDay(entry string) (timeObj time.Time, level int) {
 		}(secondWord)
 
 		// if no error has been found, create the new date with the correct hour
-		if hourErr == nil && level == 1 {
+		if hourErr == nil && level == 0 {
 			newDate := time.Date(dateObj.Year(), dateObj.Month(), dateObj.Day(), hourObj.Hour(), hourObj.Minute(), 0, 0, dateObj.Location())
 			return newDate, 0
 		}
@@ -134,22 +140,32 @@ func parseDay(entry string) (timeObj time.Time, level int) {
 	return dateObj, level
 }
 
+// check if two dates are matching down to the minute
+func sameMinute(date1, date2 time.Time) bool {
+	return date1.Format("20060102-1504") == date2.Format("20060102-1504")
+}
+
+// check if two dates are matching down to the day
 func sameDay(date1, date2 time.Time) bool {
 	return date1.Format("20060102") == date2.Format("20060102")
 }
 
+// check if two dates are matching down to the month
 func sameMonth(date1, date2 time.Time) bool {
-	return date1.Month() == date2.Month()
+	return date1.Format("200601") == date2.Format("200601")
 }
 
+// check if two dates are matching down to the year
 func sameYear(date1, date2 time.Time) bool {
-	return date1.Year() == date2.Year()
+	return date1.Format("2006") == date2.Format("2006")
 }
 
+// check if a date is between two other dates
 func dateBetween(current, start, end time.Time) bool {
 	return current.After(start) && current.Before(end)
 }
 
+// print enries according to style
 func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 	if printPlaintext {
 		for _, entry := range entries {
@@ -179,36 +195,36 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 		for _, entry := range entries {
 			// print timestamp
 			fmt.Println()
-			color.Set(color.FgHiBlue)
+			colorize.SetStyle(colorize.FgBrightBlue)
 			fmt.Print("Date: ")
-			color.Unset()
+			colorize.ResetStyle()
 			fmt.Println(entry.Timestamp)
 
 			// print title
-			color.Set(color.FgHiGreen)
+			colorize.SetStyle(colorize.FgBrightGreen)
 			fmt.Print("Title: ")
-			color.Unset()
+			colorize.ResetStyle()
 			fmt.Println(entry.Title)
 
 			// print content
-			color.Set(color.FgHiGreen)
+			colorize.SetStyle(colorize.FgBrightGreen)
 			fmt.Print("Content: ")
-			color.Unset()
+			colorize.ResetStyle()
 			fmt.Println(entry.Content)
 
 			// print tags
-			color.Set(color.FgHiMagenta)
+			colorize.SetStyle(colorize.FgBrightMagenta)
 			fmt.Print("Tags: ")
-			color.Unset()
+			colorize.ResetStyle()
 			if len(entry.Tags) > 0 {
 				fmt.Print("+" + strings.Join(entry.Tags, " +"))
 			}
 			fmt.Println()
 
 			// print fields
-			color.Set(color.FgHiMagenta)
+			colorize.SetStyle(colorize.FgBrightMagenta)
 			fmt.Print("Fields: ")
-			color.Unset()
+			colorize.ResetStyle()
 			for k, v := range entry.Fields {
 				fmt.Print(k, "=", v, " ")
 			}
@@ -220,27 +236,29 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 	}
 }
 
+// print tags (strings starting with + in entry)
 func printTags(tags map[string]int) {
 	for k, v := range tags {
 		// print key
-		color.Set(color.FgHiMagenta)
+		colorize.SetStyle(colorize.FgBrightMagenta)
 		fmt.Print(k, " ")
 		// print value
-		color.Unset()
+		colorize.ResetStyle()
 		fmt.Print(v)
 		// end line
 		fmt.Println()
 	}
 }
 
+// print fields (strings starting with @ in entry)
 func printFields(fields []map[string]string) {
 	for _, field := range fields {
 		for k, v := range field {
 			// print key
-			color.Set(color.FgHiMagenta)
+			colorize.SetStyle(colorize.FgBrightMagenta)
 			fmt.Print(k, " ")
 			// print value
-			color.Unset()
+			colorize.ResetStyle()
 			fmt.Print(v)
 			// end line
 			fmt.Println()
@@ -248,18 +266,47 @@ func printFields(fields []map[string]string) {
 	}
 }
 
+// print error
+// levels: 0 -> 3, from lowest to highest priority
 func printError(e error, level int8) {
 	switch level {
 	case 0:
-		color.Set(color.FgHiGreen)
+		colorize.SetStyle(colorize.FgBrightGreen)
 	case 1:
-		color.Set(color.FgHiYellow)
+		colorize.SetStyle(colorize.FgBrightYellow)
 	case 2:
-		color.Set(color.FgHiRed)
+		colorize.SetStyle(colorize.FgBrightRed)
 	case 3:
-		color.Set(color.BgHiRed)
-		color.Set(color.FgHiWhite)
+		colorize.SetStyle(colorize.BgBrightRed)
+		colorize.SetStyle(colorize.FgBrightWhite)
 	}
 	fmt.Println(e)
-	color.Unset()
+	colorize.ResetStyle()
+}
+
+// print current version
+func printVersion(version, repo string) {
+	colorize.SetStyle(colorize.FgBrightGreen)
+	fmt.Print("\n\tJournal Version ")
+	colorize.SetStyle(colorize.FgBrightBlue)
+	fmt.Print(version, "\n")
+	colorize.SetStyle(colorize.FgBrightGreen)
+	fmt.Print("\tGitHub repo: ")
+	colorize.SetStyle(colorize.FgBrightBlue)
+	fmt.Print(repo, "\n")
+	colorize.ResetStyle()
+
+	return
+}
+
+// print update
+func printUpdate(version, newestVersion string) {
+	if version != newestVersion {
+		colorize.SetStyle(colorize.FgBrightRed)
+		fmt.Print("\tNew version available: ")
+		fmt.Print(newestVersion, "\n\n")
+	} else {
+		colorize.SetStyle(colorize.FgBrightGreen)
+		fmt.Print("\tYou are running the most recent version\n\n")
+	}
 }
