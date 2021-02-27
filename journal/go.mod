@@ -1,9 +1,9 @@
-module journal
+module github.com/lorossi/go-journal
 
-go 1.14
+go 1.16
 
 require (
-	github.com/fatih/color v1.10.0
-	golang.org/x/sys v0.0.0-20210217105451-b926d437f341 // indirect
-	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf
+	github.com/lorossi/colorize v1.0.0
+	golang.org/x/sys v0.0.0-20210227040730-b0d1d43c014d // indirect
+	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 )
