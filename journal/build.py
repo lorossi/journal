@@ -8,7 +8,7 @@ import zipfile
 import subprocess
 
 
-def build(binaries_folder="binaries/", settings_file="buildsettings.json"):
+def build(binaries_folder="../binaries/", settings_file="buildsettings.json"):
 
     with open(settings_file) as f:
         settings = json.load(f)
@@ -16,8 +16,8 @@ def build(binaries_folder="binaries/", settings_file="buildsettings.json"):
     for b in settings["builds"]:
         if not os.path.exists(binaries_folder + b["folder"]):
             os.makedirs(binaries_folder + b["folder"])
-        options = f"env GOOS={b['os']} GOARCH={b['architecture']} go build -o" \
-                  f" {binaries_folder}{b['folder']}"
+        options = f"env GOOS={b['os']} GOARCH={b['architecture']} go build -o " \
+                  f"{binaries_folder}{b['folder']}{b['filename']}"
 
         subprocess.run(options.split(" "))
 
