@@ -10,7 +10,9 @@
    <img src="https://img.shields.io/github/last-commit/lorossi/go-journal/main?style=flat-square">
 </p>
 
-A simple CLI journal made in Go
+<p align="center">
+  CLI journaling has never been this easy!
+</p>
 
 ## Installation
 
