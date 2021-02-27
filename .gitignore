@@ -1,3 +1,4 @@
 *.json
 *.zip
+*.code-workspace
 !/journal/settings.json
