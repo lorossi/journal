@@ -1,8 +1,5 @@
 # Journal
 
-<<<<<<< Updated upstream
-### *A simple CLI journal made in Go*
-=======
 <p align="center">
   <img src="/logo/logo.png">  
 </p>
@@ -14,7 +11,6 @@
 </p>
 
 A simple CLI journal made in Go
->>>>>>> Stashed changes
 
 ## Installation
 
