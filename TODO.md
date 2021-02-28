@@ -12,3 +12,5 @@
 10. ~Add --from and --to commands~ **DONE**
 11. ~Add way to specify time for older entries (e.g. yesterday)~ **DONE**
 12. Add pictures with text
+13. Add multiple diaries
+14. More customization!
