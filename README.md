@@ -8,10 +8,11 @@
    <img src="https://img.shields.io/github/repo-size/lorossi/go-journal?style=flat-square">
    <img src="https://img.shields.io/maintenance/yes/2021?style=flat-square">
    <img src="https://img.shields.io/github/last-commit/lorossi/go-journal/main?style=flat-square">
+   <img src="https://img.shields.io/github/v/release/lorossi/journal?style=flat-square">
 </p>
 
 <p align="center">
-  CLI journaling has never been this easy!
+  <span style="font-size:larger;">CLI journaling has never been this easy!</span>
 </p>
 
 ## Installation
