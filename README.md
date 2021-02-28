@@ -67,6 +67,8 @@ Add entry for arbitrary date:
 
 `journal 2020-02-15 Dear diary, today I read about a strange flu in China. I'm sure it's going to be nothing!`
 
+`journal friday TGIF! Today we're gonna party hard in uni. It's lol LAN day!`
+
 #### Tags
 
 Write *tags* by simply adding a `+` sign before the tag. Example:
