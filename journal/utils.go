@@ -195,36 +195,26 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 		for _, entry := range entries {
 			// print timestamp
 			fmt.Println()
-			colorize.SetStyle(colorize.FgBrightBlue)
-			fmt.Print("Date: ")
-			colorize.ResetStyle()
+			fmt.Print(colorize.BrightBlue("Date: "))
 			fmt.Println(entry.Timestamp)
 
 			// print title
-			colorize.SetStyle(colorize.FgBrightGreen)
-			fmt.Print("Title: ")
-			colorize.ResetStyle()
+			colorize.SetStyle(colorize.BrightGreen("Title: "))
 			fmt.Println(entry.Title)
 
 			// print content
-			colorize.SetStyle(colorize.FgBrightGreen)
-			fmt.Print("Content: ")
-			colorize.ResetStyle()
+			colorize.SetStyle(colorize.BrightGreen("Content: "))
 			fmt.Println(entry.Content)
 
 			// print tags
-			colorize.SetStyle(colorize.FgBrightMagenta)
-			fmt.Print("Tags: ")
-			colorize.ResetStyle()
+			colorize.SetStyle(colorize.BrightMagenta("Tags: "))
 			if len(entry.Tags) > 0 {
 				fmt.Print("+" + strings.Join(entry.Tags, " +"))
 			}
 			fmt.Println()
 
 			// print fields
-			colorize.SetStyle(colorize.FgBrightMagenta)
-			fmt.Print("Fields: ")
-			colorize.ResetStyle()
+			colorize.SetStyle(colorize.BrightGreen("Fields: "))
 			for k, v := range entry.Fields {
 				fmt.Print(k, "=", v, " ")
 			}
@@ -240,10 +230,8 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 func printTags(tags map[string]int) {
 	for k, v := range tags {
 		// print key
-		colorize.SetStyle(colorize.FgBrightMagenta)
-		fmt.Print(k, " ")
+		colorize.SetStyle(colorize.BrightMagenta(k, " "))
 		// print value
-		colorize.ResetStyle()
 		fmt.Print(v)
 		// end line
 		fmt.Println()

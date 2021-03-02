@@ -78,9 +78,7 @@ func main() {
 			return
 		}
 
-		colorize.SetStyle(colorize.FgBrightGreen)
-		fmt.Println("Database decrypted")
-		colorize.ResetStyle()
+		fmt.Println(colorize.BrightGreen("Database decrypted"))
 	} else {
 		e := j.load()
 		if e != nil {
@@ -207,15 +205,11 @@ func main() {
 		} else {
 			j.SetPassword(password)
 			j.encrypt()
-			colorize.SetStyle(colorize.FgBrightGreen)
-			fmt.Println("Databae encrypted")
-			colorize.ResetStyle()
+			fmt.Println(colorize.BrightGreen("Database encrypted"))
 		}
 	} else if *removePassword {
 		e = j.save()
-		colorize.SetStyle(colorize.FgBrightGreen)
-		fmt.Println("Databae permanently decrypted")
-		colorize.ResetStyle()
+		fmt.Println(colorize.BrightGreen("Database permanently decrypted"))
 	} else if *decrypt {
 		j.encrypt()
 	} else {
