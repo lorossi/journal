@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-   <img src="https://img.shields.io/github/repo-size/lorossi/go-journal?style=flat-square">
+   <img src="https://img.shields.io/github/repo-size/lorossi/journal?style=flat-square">
    <img src="https://img.shields.io/maintenance/yes/2021?style=flat-square">
    <img src="https://img.shields.io/github/last-commit/lorossi/go-journal/main?style=flat-square">
    <img src="https://img.shields.io/github/v/release/lorossi/journal?style=flat-square">
@@ -17,7 +17,7 @@
 
 ## Installation
 
-Clone the repo and use the pre compiled binaries inside the `binaries` folder (or download the [latest release](https://github.com/lorossi/go-journal/releases/latest)).
+Clone the repo and use the pre compiled binaries inside the `binaries` folder (or download the [latest release](https://github.com/lorossi/journal/releases/latest)).
 
 - On *Linux*, use the installer by running `sudo sh installer.sh` to move the binary inside the `PATH` folder in order to run it from everywhere.
 - On *Windows*, use the installer by running `installer.bat` from the command prompt/powershell of simply double click on the file
