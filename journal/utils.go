@@ -185,30 +185,22 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 			fmt.Println(entry.Timestamp)
 
 			// print title
-			color.Set(color.FgHiGreen)
-			fmt.Print("Title: ")
-			color.Unset()
+			fmt.Print(colorize.BrightGreen("Title: "))
 			fmt.Println(entry.Title)
 
 			// print content
-			color.Set(color.FgHiGreen)
-			fmt.Print("Content: ")
-			color.Unset()
+			fmt.Print(colorize.BrightGreen("Content: "))
 			fmt.Println(entry.Content)
 
 			// print tags
-			color.Set(color.FgHiMagenta)
-			fmt.Print("Tags: ")
-			color.Unset()
+			fmt.Print(colorize.BrightMagenta("Tags: "))
 			if len(entry.Tags) > 0 {
 				fmt.Print("+" + strings.Join(entry.Tags, " +"))
 			}
 			fmt.Println()
 
 			// print fields
-			color.Set(color.FgHiMagenta)
-			fmt.Print("Fields: ")
-			color.Unset()
+			fmt.Print(colorize.BrightGreen("Fields: "))
 			for k, v := range entry.Fields {
 				fmt.Print(k, "=", v, " ")
 			}
@@ -223,8 +215,7 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 func printTags(tags map[string]int) {
 	for k, v := range tags {
 		// print key
-		color.Set(color.FgHiMagenta)
-		fmt.Print(k, " ")
+		fmt.Print(colorize.BrightMagenta(k, " "))
 		// print value
 		color.Unset()
 		fmt.Print(v)
@@ -237,10 +228,8 @@ func printFields(fields []map[string]string) {
 	for _, field := range fields {
 		for k, v := range field {
 			// print key
-			color.Set(color.FgHiMagenta)
-			fmt.Print(k, " ")
+			fmt.Print(colorize.BrightMagenta(k, " "))
 			// print value
-			color.Unset()
 			fmt.Print(v)
 			// end line
 			fmt.Println()
@@ -257,9 +246,36 @@ func printError(e error, level int8) {
 	case 2:
 		color.Set(color.FgHiRed)
 	case 3:
-		color.Set(color.BgHiRed)
-		color.Set(color.FgHiWhite)
+		colorize.SetStyle(colorize.BgBrightRed, colorize.FgBrightWhite)
 	}
 	fmt.Println(e)
-	color.Unset()
+	colorize.ResetStyle()
+}
+
+// print current version
+func printVersion(version, repo string) {
+	colorize.SetStyle(colorize.FgBrightGreen)
+	fmt.Print("\nJournal Version ")
+	colorize.SetStyle(colorize.FgBrightBlue)
+	fmt.Print(version, "\n")
+	colorize.SetStyle(colorize.FgBrightGreen)
+	fmt.Print("GitHub repo: ")
+	colorize.SetStyle(colorize.FgBrightBlue)
+	fmt.Print(repo, "\n")
+	colorize.ResetStyle()
+
+	return
+}
+
+// print update
+func printUpdate(version, newestVersion string) {
+	if version != newestVersion {
+		colorize.SetStyle(colorize.FgBrightRed, colorize.RapidBlink)
+		fmt.Print("New version available: ")
+		fmt.Print(newestVersion, "\n\n")
+	} else {
+		colorize.SetStyle(colorize.FgBrightGreen)
+		fmt.Print("You are running the most recent version\n\n")
+	}
+	colorize.ResetStyle()
 }

@@ -15,18 +15,19 @@ import (
 func main() {
 	// add flags
 	version := flag.Bool("version", false, "show current version")
+	use := flag.String("use", "", "use a journal that's not the default one")
 	add := flag.String("add", "", "add an entry to the journal. Date format: today, yesterday, weekday (monday-sunday) YYYY-MM-DD, YYYY-MM-DD. You can also set a time in format hh.mm")
 	remove := flag.String("remove", "", "remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
-	show := flag.String("show", "", "show an entry or all entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
-	searchkeywords := flag.String("searchkeywords", "", "search entries by keyword")
+	show := flag.String("show", "", "show entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
+	from := flag.String("from", "", "starting date. Only valied if passed with --show, --search or --remove flags and \"all\" argument. Format: YYYY-MM-DD")
+	to := flag.String("to", "", "ending date. Only valied if passed with --show, --search or --remove flag and \"all\" argument. Format: YYYY-MM-DD")
+	searchkeywords := flag.String("search", "", "search entries by text (both in title and content)")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
 	printPlaintext := flag.Bool("plaintext", false, "show as plaintext")
 	printJSON := flag.Bool("json", false, "show as json")
-	tags := flag.Bool("tags", false, "show all tags")
-	fields := flag.Bool("fields", false, "show all fields")
-	from := flag.String("from", "", "starting date. Only valied if passed with --show --remove flags and \"all\" argument. Format: YYYY-MM-DD")
-	to := flag.String("to", "", "ending date. Only valied if passed with --show --remove flag and \"all\" argument. Format: YYYY-MM-DD")
+	tags := flag.Bool("tags", false, "show all used tags")
+	fields := flag.Bool("fields", false, "show all used fields")
 	encrypt := flag.Bool("encrypt", false, "encrypt journal using AES")
 	decrypt := flag.Bool("decrypt", false, "decrypt using AES")
 	removePassword := flag.Bool("removepassword", false, "permanently decrypt a journal. This cannot be reversed.")
@@ -74,6 +75,16 @@ func main() {
 
 		color.Unset()
 		return
+	}
+
+	// journal is not using the default filename
+	if *use != "" {
+		// check if the string ends in .json
+		// if not, append it
+		if string((*use)[len(*use)-5:]) != ".json" {
+			*use += ".json"
+		}
+		j.setFilename(*use)
 	}
 
 	// load from database
