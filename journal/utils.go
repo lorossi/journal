@@ -266,7 +266,7 @@ func printError(e error, level int8) {
 }
 
 // print current version
-func printVersion(version, repo string) {
+func printVersion(repo, version string) {
 	fmt.Print(colorize.BrightGreen("\nJournal Version: "))
 	fmt.Print(colorize.BrightBlue(version, "\n"))
 	colorize.SetStyle(colorize.FgBrightGreen)
@@ -276,14 +276,18 @@ func printVersion(version, repo string) {
 }
 
 // print update
-func printUpdate(version, newestVersion string) {
-	if version != newestVersion {
+func printUpdate(repo, version, newestVersion string) {
+	if newestVersion == "" {
+		colorize.SetStyle(colorize.FgRed, colorize.Bold)
+		fmt.Print("Cannot check if a new version is available.", "\n")
+	} else if version != newestVersion {
 		colorize.SetStyle(colorize.FgBrightRed, colorize.RapidBlink)
 		fmt.Print("New version available: ")
-		fmt.Print(newestVersion, "\n\n")
+		fmt.Print(newestVersion, "\n")
 	} else {
 		colorize.SetStyle(colorize.FgBrightGreen)
-		fmt.Print("You are running the most recent version\n\n")
+		fmt.Print("You are running the most recent version", "\n")
 	}
+	fmt.Print("\n")
 	colorize.ResetStyle()
 }

@@ -49,22 +49,9 @@ func main() {
 	}
 
 	if *version {
-		printVersion(j.Version, j.repo)
-
-		newestVersion, e := j.GetNewestVersion()
-
-		if e == nil {
-			if j.Version != newestVersion {
-				colorize.SetStyle(colorize.FgBrightRed, colorize.RapidBlink)
-				fmt.Print("\tNew version available:", newestVersion, "\n\n")
-				colorize.ResetStyle()
-			} else {
-				fmt.Print(colorize.BrightGreen("\tYou are running the most recent version\n\n"))
-			}
-		} else {
-			printUpdate(j.repo, newestVersion)
-		}
-
+		printVersion(j.repo, j.Version)
+		newestVersion, _ := j.GetNewestVersion()
+		printUpdate(j.repo, j.Version, newestVersion)
 		return
 	}
 
