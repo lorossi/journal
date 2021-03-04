@@ -1,7 +1,7 @@
 # Journal
 
 <p align="center">
-  <img src="/logo/logo.png">  
+  <img src="/logo/logo.png" width="400" height="400">  
 </p>
 
 <p align="center">
@@ -11,8 +11,8 @@
    <img src="https://img.shields.io/github/v/release/lorossi/journal?style=flat-square">
 </p>
 
-<p align="center">
-  <span style="font-size:larger;">CLI journaling has never been this easy!</span>
+<p align="center" style="font-size: 15px;">
+  CLI journaling has never been this easy!
 </p>
 
 ## Installation
