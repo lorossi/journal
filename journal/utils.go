@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fatih/color"
+	"github.com/lorossi/colorize"
 	"golang.org/x/term"
 )
 
@@ -139,11 +139,11 @@ func sameDay(date1, date2 time.Time) bool {
 }
 
 func sameMonth(date1, date2 time.Time) bool {
-	return date1.Month() == date2.Month()
+	return date1.Format("200601") == date2.Format("200601")
 }
 
 func sameYear(date1, date2 time.Time) bool {
-	return date1.Year() == date2.Year()
+	return date1.Format("2006") == date2.Format("2006")
 }
 
 func dateBetween(current, start, end time.Time) bool {
@@ -177,20 +177,18 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 		fmt.Println(string(JSONBytes))
 	} else {
 		for _, entry := range entries {
-			// print timestamp
 			fmt.Println()
-			color.Set(color.FgHiBlue)
-			fmt.Print("Date: ")
-			color.Unset()
-			fmt.Println(entry.Timestamp)
+			// print timestamp
+			fmt.Print(colorize.BrightBlue("Date: "))
+			fmt.Print(entry.Timestamp, "\n")
 
 			// print title
 			fmt.Print(colorize.BrightGreen("Title: "))
-			fmt.Println(entry.Title)
+			fmt.Print(entry.Title, "\n")
 
 			// print content
 			fmt.Print(colorize.BrightGreen("Content: "))
-			fmt.Println(entry.Content)
+			fmt.Print(entry.Content, "\n")
 
 			// print tags
 			fmt.Print(colorize.BrightMagenta("Tags: "))
@@ -217,10 +215,7 @@ func printTags(tags map[string]int) {
 		// print key
 		fmt.Print(colorize.BrightMagenta(k, " "))
 		// print value
-		color.Unset()
-		fmt.Print(v)
-		// end line
-		fmt.Println()
+		fmt.Print(v, "\n")
 	}
 }
 
@@ -230,9 +225,7 @@ func printFields(fields []map[string]string) {
 			// print key
 			fmt.Print(colorize.BrightMagenta(k, " "))
 			// print value
-			fmt.Print(v)
-			// end line
-			fmt.Println()
+			fmt.Print(v, "\n")
 		}
 	}
 }
@@ -240,15 +233,15 @@ func printFields(fields []map[string]string) {
 func printError(e error, level int8) {
 	switch level {
 	case 0:
-		color.Set(color.FgHiGreen)
+		colorize.SetStyle(colorize.FgBrightGreen)
 	case 1:
-		color.Set(color.FgHiYellow)
+		colorize.SetStyle(colorize.FgBrightYellow)
 	case 2:
-		color.Set(color.FgHiRed)
+		colorize.SetStyle(colorize.FgBrightRed)
 	case 3:
 		colorize.SetStyle(colorize.BgBrightRed, colorize.FgBrightWhite)
 	}
-	fmt.Println(e)
+	fmt.Print(e, "\n")
 	colorize.ResetStyle()
 }
 

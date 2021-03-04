@@ -1,6 +1,6 @@
 module journal
 
-go 1.14
+go 1.16
 
 require (
 	github.com/lorossi/colorize v1.0.2

@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fatih/color"
+	"github.com/lorossi/colorize"
 )
 
 func main() {
@@ -49,31 +49,25 @@ func main() {
 	}
 
 	if *version {
-		color.Set(color.FgHiGreen)
-		fmt.Print("\n\tJournal Version ")
-		color.Set(color.FgHiBlue)
-		fmt.Print(j.Version, "\n")
-		color.Set(color.FgHiGreen)
-		fmt.Print("\tGitHub repo: ")
-		color.Set(color.FgHiBlue)
-		fmt.Print(j.Repo, "\n")
+		fmt.Print(colorize.BrightGreen("\n\tJournal Version "))
+		fmt.Print(colorize.BrightBlue(j.Version, "\n"))
+		fmt.Print(colorize.BrightGreen("\tGitHub repo: "))
+		fmt.Print(colorize.BrightBlue(j.Repo, "\n"))
 
 		currentVersion, e := j.getCurrentVersion()
 
 		if e == nil {
 			if j.Version != currentVersion {
-				color.Set(color.FgHiRed)
-				fmt.Print("\tNew version available: ")
-				fmt.Print(currentVersion, "\n\n")
+				colorize.SetStyle(colorize.FgBrightRed, colorize.RapidBlink)
+				fmt.Print("\tNew version available:", currentVersion, "\n\n")
+				colorize.ResetStyle()
 			} else {
-				color.Set(color.FgHiGreen)
-				fmt.Print("\tYou are running the most recent version\n\n")
+				fmt.Print(colorize.BrightGreen("\tYou are running the most recent version\n\n"))
 			}
 		} else {
 			fmt.Print("\n")
 		}
 
-		color.Unset()
 		return
 	}
 

@@ -147,15 +147,10 @@ func (j *Journal) load() (e error) {
 	file, e = readFromFile(j.folder + j.filename)
 
 	// if not available, create an empty one
-	if e != nil {
+	// or, if JSON file is empty, just don't open it
+	if e != nil || string(file) == "[]" {
 		j.Created = time.Now().Format(time.RFC3339)
 		ioutil.WriteFile(j.folder+j.filename, []byte("[]"), 0666)
-		return nil
-	}
-
-	// if JSON file is empty, just don't open it
-	// empty json file just contains []
-	if string(file) == "[]" {
 		return nil
 	}
 
@@ -169,6 +164,9 @@ func (j *Journal) load() (e error) {
 	for i := 0; i < len(j.Entries); i++ {
 		j.Entries[i].timeObj, _ = time.Parse(j.timeFormat, j.Entries[i].Timestamp)
 	}
+
+	// update last loaded
+	j.LastLoaded = time.Now().Format(time.RFC3339)
 
 	return nil
 }
@@ -218,6 +216,8 @@ func (j *Journal) decrypt() (e error) {
 	for i := 0; i < len(j.Entries); i++ {
 		j.Entries[i].timeObj, _ = time.Parse(j.timeFormat, j.Entries[i].Timestamp)
 	}
+	// update last loaded
+	j.LastLoaded = time.Now().Format(time.RFC3339)
 
 	return nil
 }
