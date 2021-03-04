@@ -227,7 +227,7 @@ The output can be formatted either in JSON or plain text by using the correct fl
 
 `journal --view all --plaintext`
 
-## Multiple journals
+### Multiple journals
 
 You can also have multiple separated journals (e.g. one for work and one for personal life). Simply chose which one you want to use by prefixing the flag `--use` to whatever arguments you are passing. If the said journal does not exist, it will be created.
 
