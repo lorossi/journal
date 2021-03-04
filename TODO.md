@@ -11,3 +11,6 @@
 9. ~Add commands to view all fields and tags~ **DONE**
 10. ~Add --from and --to commands~ **DONE**
 11. ~Add way to specify time for older entries (e.g. yesterday)~ **DONE**
+12. Add pictures with text
+13. ~Add multiple diaries~ **DONE**
+14. More customization!

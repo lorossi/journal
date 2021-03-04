@@ -13,14 +13,12 @@ import (
 )
 
 func main() {
-	// add flags
+	// flags list
 	version := flag.Bool("version", false, "show current version")
 	use := flag.String("use", "", "use a journal that's not the default one")
 	add := flag.String("add", "", "add an entry to the journal. Date format: today, yesterday, weekday (monday-sunday) YYYY-MM-DD, YYYY-MM-DD. You can also set a time in format hh.mm")
 	remove := flag.String("remove", "", "remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
 	show := flag.String("show", "", "show entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
-	from := flag.String("from", "", "starting date. Only valied if passed with --show, --search or --remove flags and \"all\" argument. Format: YYYY-MM-DD")
-	to := flag.String("to", "", "ending date. Only valied if passed with --show, --search or --remove flag and \"all\" argument. Format: YYYY-MM-DD")
 	searchkeywords := flag.String("search", "", "search entries by text (both in title and content)")
 	searchtags := flag.String("searchtags", "", "search entries by tags")
 	searchfields := flag.String("searchfields", "", "search entries by fields")
@@ -28,9 +26,11 @@ func main() {
 	printJSON := flag.Bool("json", false, "show as json")
 	tags := flag.Bool("tags", false, "show all used tags")
 	fields := flag.Bool("fields", false, "show all used fields")
+	from := flag.String("from", "", "starting date. Only valied if passed with --show, --search or --remove flags and \"all\" argument. Format: YYYY-MM-DD")
+	to := flag.String("to", "", "ending date. Only valied if passed with --show, --search or --remove flag and \"all\" argument. Format: YYYY-MM-DD")
 	encrypt := flag.Bool("encrypt", false, "encrypt journal using AES")
 	decrypt := flag.Bool("decrypt", false, "decrypt using AES")
-	removePassword := flag.Bool("removepassword", false, "permanently decrypt a journal. This cannot be reversed.")
+	removePassword := flag.Bool("removepassword", false, "permanently decrypt a journal by removing its password")
 
 	flag.Parse()
 
