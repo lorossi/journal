@@ -33,7 +33,7 @@ type Journal struct {
 	LastLoaded       string  `json:"LastLoaded"`
 	Created          string  `json:"created"`
 	Version          string  `json:"version"`
-	Repo             string  `json:"-"`
+	repo             string
 	password         string
 	folder, filename string
 	timeFormat       string
@@ -51,7 +51,7 @@ func (j *Journal) GetNewestVersion() (newestVersion string, e error) {
 		Timeout: 5 * time.Second,
 	}
 	// load url
-	response, e := client.Get(j.Repo + "/releases/latest")
+	response, e := client.Get(j.repo + "/releases/latest")
 	if e != nil {
 		return "", e
 	}
@@ -89,7 +89,7 @@ func NewJournal() (j Journal, e error) {
 	j = Journal{
 		LastLoaded: time.Now().Format(time.RFC3339),
 		Version:    "1.1.3",
-		Repo:       "https://github.com/lorossi/go-journal",
+		repo:       "https://github.com/lorossi/go-journal",
 		timeFormat: "2006-01-02 15:04:05",
 		folder:     journalFolder,
 		filename:   "journal.json",
