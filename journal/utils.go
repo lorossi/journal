@@ -193,28 +193,28 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 		fmt.Println(string(JSONBytes))
 	} else {
 		for _, entry := range entries {
-			// print timestamp
 			fmt.Println()
+			// print timestamp
 			fmt.Print(colorize.BrightBlue("Date: "))
-			fmt.Println(entry.Timestamp)
+			fmt.Print(entry.Timestamp, "\n")
 
 			// print title
-			colorize.SetStyle(colorize.BrightGreen("Title: "))
-			fmt.Println(entry.Title)
+			fmt.Print(colorize.BrightGreen("Title: "))
+			fmt.Print(entry.Title, "\n")
 
 			// print content
-			colorize.SetStyle(colorize.BrightGreen("Content: "))
-			fmt.Println(entry.Content)
+			fmt.Print(colorize.BrightGreen("Content: "))
+			fmt.Print(entry.Content, "\n")
 
 			// print tags
-			colorize.SetStyle(colorize.BrightMagenta("Tags: "))
+			fmt.Print(colorize.BrightMagenta("Tags: "))
 			if len(entry.Tags) > 0 {
 				fmt.Print("+" + strings.Join(entry.Tags, " +"))
 			}
 			fmt.Println()
 
 			// print fields
-			colorize.SetStyle(colorize.BrightGreen("Fields: "))
+			fmt.Print(colorize.BrightGreen("Fields: "))
 			for k, v := range entry.Fields {
 				fmt.Print(k, "=", v, " ")
 			}
@@ -230,11 +230,9 @@ func printEntries(entries []Entry, printPlaintext bool, printJSON bool) {
 func printTags(tags map[string]int) {
 	for k, v := range tags {
 		// print key
-		colorize.SetStyle(colorize.BrightMagenta(k, " "))
+		fmt.Print(colorize.BrightMagenta(k, " "))
 		// print value
-		fmt.Print(v)
-		// end line
-		fmt.Println()
+		fmt.Print(v, "\n")
 	}
 }
 
@@ -243,13 +241,9 @@ func printFields(fields []map[string]string) {
 	for _, field := range fields {
 		for k, v := range field {
 			// print key
-			colorize.SetStyle(colorize.FgBrightMagenta)
-			fmt.Print(k, " ")
+			fmt.Print(colorize.BrightMagenta(k, " "))
 			// print value
-			colorize.ResetStyle()
-			fmt.Print(v)
-			// end line
-			fmt.Println()
+			fmt.Print(v, "\n")
 		}
 	}
 }
@@ -265,36 +259,31 @@ func printError(e error, level int8) {
 	case 2:
 		colorize.SetStyle(colorize.FgBrightRed)
 	case 3:
-		colorize.SetStyle(colorize.BgBrightRed)
-		colorize.SetStyle(colorize.FgBrightWhite)
+		colorize.SetStyle(colorize.BgBrightRed, colorize.FgBrightWhite)
 	}
-	fmt.Println(e)
+	fmt.Print(e, "\n")
 	colorize.ResetStyle()
 }
 
 // print current version
 func printVersion(version, repo string) {
+	fmt.Print(colorize.BrightGreen("\nJournal Version: "))
+	fmt.Print(colorize.BrightBlue(version, "\n"))
 	colorize.SetStyle(colorize.FgBrightGreen)
-	fmt.Print("\n\tJournal Version ")
-	colorize.SetStyle(colorize.FgBrightBlue)
-	fmt.Print(version, "\n")
-	colorize.SetStyle(colorize.FgBrightGreen)
-	fmt.Print("\tGitHub repo: ")
-	colorize.SetStyle(colorize.FgBrightBlue)
-	fmt.Print(repo, "\n")
-	colorize.ResetStyle()
-
+	fmt.Print(colorize.BrightGreen("GitHub repo: "))
+	fmt.Print(colorize.BrightBlue(repo, "\n"))
 	return
 }
 
 // print update
 func printUpdate(version, newestVersion string) {
 	if version != newestVersion {
-		colorize.SetStyle(colorize.FgBrightRed)
-		fmt.Print("\tNew version available: ")
+		colorize.SetStyle(colorize.FgBrightRed, colorize.RapidBlink)
+		fmt.Print("New version available: ")
 		fmt.Print(newestVersion, "\n\n")
 	} else {
 		colorize.SetStyle(colorize.FgBrightGreen)
-		fmt.Print("\tYou are running the most recent version\n\n")
+		fmt.Print("You are running the most recent version\n\n")
 	}
+	colorize.ResetStyle()
 }

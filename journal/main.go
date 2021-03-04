@@ -13,8 +13,9 @@ import (
 )
 
 func main() {
-	// add flags
+	// flags list
 	version := flag.Bool("version", false, "show current version")
+	use := flag.String("use", "", "use a journal that's not the default one")
 	add := flag.String("add", "", "add an entry to the journal. Date format: today, yesterday, weekday (monday-sunday) YYYY-MM-DD, YYYY-MM-DD. You can also set a time in format hh.mm")
 	remove := flag.String("remove", "", "remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
 	show := flag.String("show", "", "show entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY")
@@ -48,19 +49,36 @@ func main() {
 	}
 
 	if *version {
-		version := j.Version
+		fmt.Print(colorize.BrightGreen("\n\tJournal Version "))
+		fmt.Print(colorize.BrightBlue(j.Version, "\n"))
+		fmt.Print(colorize.BrightGreen("\tGitHub repo: "))
+		fmt.Print(colorize.BrightBlue(j.Repo, "\n"))
 
-		printVersion(version, j.Repo)
-		newestVersion, e := j.GetNewestVersion()
+		currentVersion, e := j.getCurrentVersion()
 
-		if e != nil {
-			printError(errors.New("\tCannot check for new version. Check manually on the GitHub repo"), 1)
-			fmt.Println()
+		if e == nil {
+			if j.Version != currentVersion {
+				colorize.SetStyle(colorize.FgBrightRed, colorize.RapidBlink)
+				fmt.Print("\tNew version available:", currentVersion, "\n\n")
+				colorize.ResetStyle()
+			} else {
+				fmt.Print(colorize.BrightGreen("\tYou are running the most recent version\n\n"))
+			}
 		} else {
 			printUpdate(version, newestVersion)
 		}
 
 		return
+	}
+
+	// journal is not using the default filename
+	if *use != "" {
+		// check if the string ends in .json
+		// if not, append it
+		if string((*use)[len(*use)-5:]) != ".json" {
+			*use += ".json"
+		}
+		j.setFilename(*use)
 	}
 
 	// load from database

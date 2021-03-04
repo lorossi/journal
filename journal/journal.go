@@ -29,14 +29,14 @@ type Entry struct {
 
 // Journal is the class containing the whole journal
 type Journal struct {
-	Entries    []Entry `json:"days"`
-	LastLoaded string  `json:"LastLoaded"`
-	Created    string  `json:"created"`
-	Version    string  `json:"version"`
-	Repo       string  `json:"-"`
-	password   string
-	path       string
-	timeFormat string
+	Entries          []Entry `json:"days"`
+	LastLoaded       string  `json:"LastLoaded"`
+	Created          string  `json:"created"`
+	Version          string  `json:"version"`
+	Repo             string  `json:"-"`
+	password         string
+	folder, filename string
+	timeFormat       string
 }
 
 //SetPassword -> sets new database password
@@ -72,12 +72,12 @@ func NewJournal() (j Journal, e error) {
 	var journalFolder string
 	// multi os support (hopefully)
 	if runtime.GOOS == "linux" {
-		journalFolder = "/var/lib/journal"
+		journalFolder = "/var/lib/journal/"
 	} else if runtime.GOOS == "darwin" {
 		// macOS, might need testing
-		journalFolder = "~/Library/Preferences/journal"
+		journalFolder = "~/Library/Preferences/journal/"
 	} else if runtime.GOOS == "windows" {
-		journalFolder = os.Getenv("APPDATA") + "\\journal"
+		journalFolder = os.Getenv("APPDATA") + "\\journal\\"
 	}
 
 	if _, e := os.Stat(journalFolder); os.IsNotExist(e) {
@@ -88,14 +88,16 @@ func NewJournal() (j Journal, e error) {
 
 	j = Journal{
 		LastLoaded: time.Now().Format(time.RFC3339),
-		Version:    "1.1.2",
+		Version:    "1.1.3",
 		Repo:       "https://github.com/lorossi/go-journal",
 		timeFormat: "2006-01-02 15:04:05",
-		path:       journalFolder + "/journal.json",
+		folder:     journalFolder,
+		filename:   "journal.json",
 	}
 
 	if strings.Contains(j.Version, "b") {
-		j.path = "beta.json"
+		j.folder = ""
+		j.filename = "beta.json"
 	}
 
 	return j, nil
@@ -140,11 +142,13 @@ func (j *Journal) createNewEntry(title, content string, tags []string, fields ma
 func (j *Journal) load() (e error) {
 	var file []byte
 	// try to open the file
-	file, e = readFromFile(j.path)
+	file, e = readFromFile(j.folder + j.filename)
+
 	// if not available, create an empty one
-	if e != nil {
+	// or, if JSON file is empty, just don't open it
+	if e != nil || string(file) == "[]" {
 		j.Created = time.Now().Format(time.RFC3339)
-		ioutil.WriteFile(j.path, []byte("[]"), 0666)
+		ioutil.WriteFile(j.folder+j.filename, []byte("[]"), 0666)
 		return nil
 	}
 
@@ -153,19 +157,27 @@ func (j *Journal) load() (e error) {
 	if e != nil {
 		return errors.New("cannot parse database. Is it encrypted?")
 	}
+
 	// calculate the time for each entry
 	for i := 0; i < len(j.Entries); i++ {
 		j.Entries[i].timeObj, _ = time.Parse(j.timeFormat, j.Entries[i].Timestamp)
 	}
 
+	// update last loaded
+	j.LastLoaded = time.Now().Format(time.RFC3339)
+
 	return nil
+}
+
+func (j *Journal) setFilename(filename string) {
+	j.filename = filename
 }
 
 // load and decrypt database
 func (j *Journal) decrypt() (e error) {
 	var file []byte
 	// try to open the file
-	file, e = readFromFile(j.path)
+	file, e = readFromFile(j.folder + j.filename)
 	if e != nil {
 		return errors.New("cannot open encrypted database")
 	}
@@ -202,6 +214,8 @@ func (j *Journal) decrypt() (e error) {
 	for i := 0; i < len(j.Entries); i++ {
 		j.Entries[i].timeObj, _ = time.Parse(j.timeFormat, j.Entries[i].Timestamp)
 	}
+	// update last loaded
+	j.LastLoaded = time.Now().Format(time.RFC3339)
 
 	return nil
 }
@@ -214,7 +228,7 @@ func (j *Journal) save() (e error) {
 		return errors.New("error while encoding data. cannot save")
 	}
 	// write to file
-	writeToFile(j.path, JSONbytes)
+	writeToFile(j.folder+j.filename, JSONbytes)
 	return e
 }
 
@@ -243,7 +257,7 @@ func (j *Journal) encrypt() (e error) {
 
 	ciphertext := gcm.Seal(nonce, nonce, JSONbytes, nil)
 	// write to file
-	e = writeToFile(j.path, ciphertext)
+	e = writeToFile(j.folder+j.filename, ciphertext)
 	return e
 }
 

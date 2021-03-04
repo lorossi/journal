@@ -1,5 +1,5 @@
-github.com/lorossi/colorize v1.0.1 h1:L8DWa8Zh1hmg12mIMlWZN0tcIhx7wUdJvPzhXyqJGiU=
-github.com/lorossi/colorize v1.0.1/go.mod h1:zQi2nx/Z5Fb+V0WVQciJF81J8RAtcN1XYw0Y3Utb9ok=
+github.com/lorossi/colorize v1.0.2 h1:4pbnmGKbIN08QLZ/BZTl+RS/x7Q2kNTS0rcdiOt9rRE=
+github.com/lorossi/colorize v1.0.2/go.mod h1:zQi2nx/Z5Fb+V0WVQciJF81J8RAtcN1XYw0Y3Utb9ok=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20210227040730-b0d1d43c014d h1:9fH9JvLNoSpsDWcXJ4dSE3lZW99Z3OCUZLr07g60U6o=
 golang.org/x/sys v0.0.0-20210227040730-b0d1d43c014d/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=

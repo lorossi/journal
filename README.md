@@ -227,6 +227,10 @@ The output can be formatted either in JSON or plain text by using the correct fl
 
 `journal --view all --plaintext`
 
+## Multiple journals
+
+You can also have multiple separated journals (e.g. one for work and one for personal life). Simply chose which one you want to use by prefixing the flag `--use` to whatever arguments you are passing. If the said journal does not exist, it will be created.
+
 ### Help
 
 Use the flag `-h` or `--help` to get a list of all the available options.
@@ -238,6 +242,7 @@ Complete list of commands:
 |:-:|:-:|:-:|
 | `-h --help` | Show help | |
 | `--version` | Show current version | |
+| `--use` | Use a custom journal instead of the default one | If the journal does not exist, it will be created |
 | `--add` | Add an entry to the journal. Date format: today, yesterday, weekday (monday-sunday) YYYY-MM-DD | Can be omitted if adding a new entry is the only operation |
 | `-show` | Show entries from the journal. Use all to see all. Date format: YYYY-MM-DD or YYYY-MM or YYYY |  |
 | `--remove` | Remove an entry from the journal. Date format: YYYY-MM-DD or YYYY-MM or YYYY  |  |
