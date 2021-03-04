@@ -49,7 +49,9 @@ func main() {
 	}
 
 	if *version {
+		// log current version
 		printVersion(j.repo, j.Version)
+		// try to fetch the newest version and show it
 		newestVersion, _ := j.GetNewestVersion()
 		printUpdate(j.repo, j.Version, newestVersion)
 		return
